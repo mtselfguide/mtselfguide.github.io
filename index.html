@@ -190,6 +190,20 @@
     .card-banner {
       height: 8px;
     }
+
+    .card-img {
+      height: 180px;
+      overflow: hidden;
+      margin: 0;
+    }
+    .card-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform .3s;
+    }
+    .card:hover .card-img img { transform: scale(1.04); }
     .card-banner.open    { background: var(--green-light); }
     .card-banner.closed  { background: #9e9e9e; }
     .card-banner.soon    { background: var(--amber); }
@@ -542,6 +556,9 @@
       <!-- 課程卡 2：兩日野營（三梯次同時報名中） -->
       <article class="card">
         <div class="card-banner open"></div>
+        <figure class="card-img">
+          <img src="assets/card-camping.jpg" alt="森林營地中架設的多頂帳篷，學員在天幕下整理裝備" loading="lazy" />
+        </figure>
         <div class="card-body">
           <div class="card-top">
             <h3 class="card-title">兩天一夜野營實戰系列</h3>
