@@ -32,12 +32,58 @@
       --radius:      14px;
     }
 
+    html { scroll-behavior: smooth; }
+
     body {
       font-family: -apple-system, "Noto Sans TC", "Helvetica Neue", Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
       line-height: 1.6;
     }
+
+    /* ── 導覽列 ── */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--green-dark);
+      box-shadow: 0 2px 12px rgba(0,0,0,.15);
+    }
+    .nav-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .nav-inner::-webkit-scrollbar { display: none; }
+    .nav a {
+      flex-shrink: 0;
+      padding: 13px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255,255,255,.85);
+      text-decoration: none;
+      white-space: nowrap;
+      border-bottom: 3px solid transparent;
+      transition: color .15s, border-color .15s;
+    }
+    .nav a:hover {
+      color: #fff;
+      border-bottom-color: var(--green-light);
+    }
+    .nav a.nav-home {
+      font-weight: 700;
+      color: #fff;
+      margin-right: auto;
+    }
+
+    /* 錨點捲動時預留導覽列高度 */
+    .series { scroll-margin-top: 64px; }
 
     /* ── Header ── */
     header {
@@ -437,7 +483,16 @@
 </head>
 <body>
 
-<header>
+<nav class="nav" aria-label="課程系列導覽">
+  <div class="nav-inner">
+    <a class="nav-home" href="#top">⛰ 課程總覽</a>
+    <a href="#hiking">新手入門課</a>
+    <a href="#comm-safety">通訊安全講座</a>
+    <a href="#fitness">體能訓練</a>
+  </div>
+</nav>
+
+<header id="top">
   <p class="org-name">【台灣自主登山能力推廣協會】</p>
   <h1>課程活動報名</h1>
   <p class="tagline">探索戶外、走入山林，每一步都是收穫</p>
