@@ -365,21 +365,26 @@
     "@graph": [
       {
         "@type": "Organization",
+        "@id": "https://mtselfguide.com/#organization",
         "name": "台灣自主登山能力推廣協會",
         "url": "https://mtselfguide.com/",
+        "logo": "https://mtselfguide.com/assets/og-cover.jpg",
+        "email": "services@mtselfguide.com",
         "sameAs": ["https://www.facebook.com/profile.php?id=61577607467247"]
       },
       {
         "@type": "Course",
         "name": "手機離線地圖【山林日誌】實用教學",
         "description": "為完全不會用手機 GPS 離線地圖的山友所設計，學會掌握指北針方向感，走一趟安全、安心的郊山路。目前暫無場次，敬請關注最新開課消息。",
-        "provider": { "@type": "Organization", "name": "台灣自主登山能力推廣協會" }
+        "image": "https://mtselfguide.com/assets/card-offline-map.jpg",
+        "provider": { "@id": "https://mtselfguide.com/#organization" }
       },
       {
         "@type": "Course",
         "name": "兩天一夜野營實戰系列",
         "description": "在兩天一夜的實戰中，將地圖知識轉化為行進直覺，並在真實環境中演練裝備管理與風險應變。",
-        "provider": { "@type": "Organization", "name": "台灣自主登山能力推廣協會" },
+        "image": "https://mtselfguide.com/assets/card-camping.jpg",
+        "provider": { "@id": "https://mtselfguide.com/#organization" },
         "hasCourseInstance": [
           {
             "@type": "CourseInstance",
@@ -397,6 +402,7 @@
               "price": "5400",
               "priceCurrency": "TWD",
               "url": "https://forms.gle/yT4T1MhTa1PAfyGf6",
+              "validFrom": "2026-07-01T00:00:00+08:00",
               "availability": "https://schema.org/InStock"
             }
           },
@@ -416,6 +422,7 @@
               "price": "4000",
               "priceCurrency": "TWD",
               "url": "https://forms.gle/4EQpWKhdFCtMgdVq7",
+              "validFrom": "2026-07-01T00:00:00+08:00",
               "availability": "https://schema.org/InStock"
             }
           },
@@ -435,6 +442,7 @@
               "price": "4000",
               "priceCurrency": "TWD",
               "url": "https://forms.gle/t88EVFfWiS7VjKxu5",
+              "validFrom": "2026-07-01T00:00:00+08:00",
               "availability": "https://schema.org/InStock"
             }
           }
@@ -444,7 +452,10 @@
         "@type": "EducationEvent",
         "name": "登山通訊安全講座：Garmin inReach 教學",
         "description": "認識衛星通訊裝置 Garmin inReach 的功能與實際操作，建立山區通訊安全觀念，讓每一次出發都多一層保障。",
-        "organizer": { "@type": "Organization", "name": "台灣自主登山能力推廣協會" },
+        "image": "https://mtselfguide.com/assets/card-inreach.jpg",
+        "url": "https://mtselfguide.com/#comm-safety",
+        "organizer": { "@id": "https://mtselfguide.com/#organization" },
+        "performer": { "@id": "https://mtselfguide.com/#organization" },
         "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
         "eventStatus": "https://schema.org/EventScheduled",
         "startDate": "2026-08-19T19:15:00+08:00",
@@ -461,6 +472,7 @@
             "price": "400",
             "priceCurrency": "TWD",
             "url": "https://forms.gle/UG1esCdtmWnbk6ip8",
+            "validFrom": "2026-07-01T00:00:00+08:00",
             "availability": "https://schema.org/InStock"
           },
           {
@@ -469,6 +481,7 @@
             "price": "750",
             "priceCurrency": "TWD",
             "url": "https://forms.gle/UG1esCdtmWnbk6ip8",
+            "validFrom": "2026-07-01T00:00:00+08:00",
             "availability": "https://schema.org/InStock"
           }
         ]
@@ -477,7 +490,13 @@
         "@type": "EducationEvent",
         "name": "科學化肌力登山指南－交流體驗工作坊",
         "description": "與璞實生活合辦，涵蓋能量系統與呼吸、核心肌力漸進負荷訓練、傷後恢復與強化三大主軸，透過徒手操作與重訓器材檢測關節活動度、模擬登山動作，協助調整發力習慣。",
-        "organizer": { "@type": "Organization", "name": "台灣自主登山能力推廣協會" },
+        "image": "https://mtselfguide.com/assets/card-fitness.jpg",
+        "url": "https://mtselfguide.com/#fitness",
+        "organizer": { "@id": "https://mtselfguide.com/#organization" },
+        "performer": [
+          { "@type": "Person", "name": "耀禾" },
+          { "@type": "Person", "name": "軒韋" }
+        ],
         "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
         "eventStatus": "https://schema.org/EventScheduled",
         "startDate": "2026-08-22T16:00:00+08:00",
@@ -493,6 +512,7 @@
           "price": "1000",
           "priceCurrency": "TWD",
           "url": "https://forms.gle/T7KzQtEXwVeevw259",
+          "validFrom": "2026-07-01T00:00:00+08:00",
           "availability": "https://schema.org/InStock"
         }
       }
