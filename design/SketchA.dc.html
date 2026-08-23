@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500&display=swap" />
+  <style>
+    body { margin: 0; background: #F4F2ED; color: #2A2A28; font-family: "Noto Sans TC", system-ui, sans-serif; line-height: 1.8; }
+    a { color: #C2521C; text-decoration: none; }
+    a:hover { color: #94400F; }
+    h1, h2, h3, p, figure { margin: 0; padding: 0; }
+    .lofi { background: #DCD9D1; border: 1px solid #BFBBB1; }
+    .bar { background: #BFBBB1; height: 10px; }
+    .bar-s { background: #CFCBC2; height: 8px; }
+    .stamp {
+      font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: .18em;
+      text-transform: uppercase; color: #86827A;
+    }
+  </style>
+</helmet>
+
+<div style="display: flex; flex-direction: column; width: 720px; height: 520px; background: #F4F2ED;">
+
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 22px; border-bottom: 1px solid #BFBBB1;">
+    <span class="stamp">Sketch A ／ 低擬真</span>
+    <span style="font-family: 'Noto Serif TC', serif; font-size: 14px; font-weight: 600;">攝影主導・雜誌編輯感</span>
+  </div>
+
+  <div style="position: relative; height: 236px; margin: 0;">
+    <div class="lofi" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; border-left: none; border-right: none;">
+      <span class="stamp">全幅山景照</span>
+    </div>
+    <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 150px; background: linear-gradient(180deg, rgba(42,42,40,0) 0%, rgba(42,42,40,.72) 100%);"></div>
+    <div style="position: absolute; left: 34px; right: 34px; bottom: 26px;">
+      <div class="stamp" style="color: #E4E1D8; margin-bottom: 10px;">台灣自主登山能力推廣協會</div>
+      <div style="font-family: 'Noto Serif TC', serif; font-size: 38px; font-weight: 900; line-height: 1.28; color: #FAF8F3;">安全走入山林<br />從自主能力開始</div>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 26px; padding: 26px 34px 0;">
+    <div style="flex-grow: 1;">
+      <div class="bar" style="width: 62%;"></div>
+      <div class="bar-s" style="width: 100%; margin-top: 12px;"></div>
+      <div class="bar-s" style="width: 94%; margin-top: 7px;"></div>
+      <div class="bar-s" style="width: 74%; margin-top: 7px;"></div>
+      <div style="display: flex; gap: 14px; margin-top: 20px;">
+        <div class="lofi" style="width: 150px; height: 96px; display: flex; align-items: center; justify-content: center;"><span class="stamp">課程圖</span></div>
+        <div style="flex-grow: 1;">
+          <div class="bar" style="width: 76%;"></div>
+          <div class="bar-s" style="width: 100%; margin-top: 10px;"></div>
+          <div class="bar-s" style="width: 88%; margin-top: 7px;"></div>
+          <div style="display: inline-block; margin-top: 12px; padding: 5px 12px; background: #C2521C; color: #FAF8F3; font-size: 11px; font-weight: 500;">立即報名</div>
+        </div>
+      </div>
+    </div>
+    <div style="width: 176px; flex-shrink: 0; padding-left: 24px; border-left: 1px solid #BFBBB1;">
+      <div class="stamp" style="margin-bottom: 12px;">課程索引</div>
+      <div class="bar-s" style="width: 100%;"></div>
+      <div class="bar-s" style="width: 82%; margin-top: 9px;"></div>
+      <div class="bar-s" style="width: 92%; margin-top: 9px;"></div>
+      <div class="bar-s" style="width: 70%; margin-top: 9px;"></div>
+    </div>
+  </div>
+
+  <p style="margin: auto 34px 20px; padding-top: 16px; border-top: 1px solid #BFBBB1; font-size: 12.5px; line-height: 1.85; color: #6B6862;">情緒最強、最能傳達「走入山林」的召喚，適合對外分享；代價是課程日期與費用被排到照片與長文之後，想比較梯次的人要往下捲。</p>
+
+</div>
+</x-dc>
+</body>
+</html>
