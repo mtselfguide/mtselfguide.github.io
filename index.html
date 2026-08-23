@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>登山課程報名 | 台灣自主登山能力推廣協會</title>
@@ -20,345 +21,520 @@
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="登山者背著背包在高山池畔休息，遠方是雲霧繚繞的山巒" />
   <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Noto+Sans+TC:wght@400;500;700;900&amp;display=swap" />
+  <meta name="theme-color" content="#3b4e40" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --green-dark:  #1e4d2b;
-      --green-mid:   #2d6a3f;
-      --green-light: #4caf68;
-      --amber:       #e8a020;
-      --amber-dark:  #c47d0a;
-      --bg:          #f5f7f4;
-      --card-bg:     #ffffff;
-      --text:        #1a1a1a;
-      --muted:       #5c6b5e;
-      --border:      #dde5de;
-      --radius:      14px;
+      /* 深色帶（頁首・引言・頁尾） */
+      --band:        #3b4e40;
+      --band-line:   #55684f;
+      --on-band:     #f6f2e8;
+      --on-band-2:   #d8d8cb;
+      --on-band-3:   #b4bbaa;
+      /* 紙面 */
+      --ink:         #15201a;
+      --paper:       #e8e2d4;
+      --card:        #f3efe5;
+      --rule:        #d6cdb8;
+      --rule-soft:   #cdc4ae;
+      --muted:       #5a6353;
+      --dim:         #62675b;
+      /* 訊號色：只用於「可以報名」 */
+      --signal:      #c2521c;
+      --signal-dark: #94400f;
+      --signal-band: #ee9450;   /* 深底上的橘：維持對比 */
+      --on-signal:   #ffffff;
+
+      --shell: 1200px;
+      --pad:   60px;
     }
+    @media (max-width: 900px) { :root { --pad: 28px; } }
+    @media (max-width: 560px) { :root { --pad: 20px; } }
 
     html { scroll-behavior: smooth; }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      * { transition: none !important; }
+    }
 
     body {
-      font-family: -apple-system, "Noto Sans TC", "Helvetica Neue", Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Noto Sans TC", -apple-system, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.8;
+      -webkit-font-smoothing: antialiased;
+      text-wrap: pretty;
     }
+
+    img { max-width: 100%; display: block; }
+    ul { list-style: none; }
+    a { color: var(--signal); text-decoration: none; }
+    a:hover { color: var(--signal-dark); }
+
+    .shell {
+      max-width: var(--shell);
+      margin: 0 auto;
+      padding-left: var(--pad);
+      padding-right: var(--pad);
+    }
+
+    /* 單寬字標註：英文小標、日期、數字 */
+    .mono { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .key {
+      font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+
+    /* ── 頂部資訊條 ── */
+    .topbar {
+      background: var(--band);
+      border-bottom: 1px solid var(--band-line);
+    }
+    .topbar .shell {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding-top: 11px;
+      padding-bottom: 11px;
+    }
+    .topbar .key { color: var(--on-band-3); }
+    .topbar a { color: var(--on-band-3); }
+    .topbar a:hover { color: var(--on-band); }
+    @media (max-width: 720px) { .topbar { display: none; } }
 
     /* ── 導覽列 ── */
     .nav {
       position: sticky;
       top: 0;
       z-index: 100;
-      background: var(--green-dark);
-      box-shadow: 0 2px 12px rgba(0,0,0,.15);
+      background: var(--band);
+      box-shadow: 0 2px 14px rgba(21, 32, 26, .18);
     }
     .nav-inner {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 0 16px;
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 30px;
+      padding-top: 14px;
+      padding-bottom: 12px;
       overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
     }
     .nav-inner::-webkit-scrollbar { display: none; }
-    .nav a {
+    .nav-home {
       flex-shrink: 0;
-      padding: 13px 14px;
+      margin-right: auto;
+      font-size: 17px;
+      font-weight: 900;
+      letter-spacing: .02em;
+      color: var(--on-band);
+    }
+    .nav-home:hover { color: var(--on-band); }
+    .nav-link {
+      flex-shrink: 0;
+      padding: 8px 2px;
       font-size: 14px;
-      font-weight: 600;
-      color: rgba(255,255,255,.85);
-      text-decoration: none;
-      white-space: nowrap;
-      border-bottom: 3px solid transparent;
+      font-weight: 500;
+      color: #dad8cb;
+      border-bottom: 2px solid transparent;
       transition: color .15s, border-color .15s;
     }
-    .nav a:hover {
-      color: #fff;
-      border-bottom-color: var(--green-light);
-    }
-    .nav a.nav-home {
-      font-weight: 700;
-      color: #fff;
-      margin-right: auto;
-    }
-
-    /* 錨點捲動時預留導覽列高度 */
-    .series { scroll-margin-top: 64px; }
-
-    /* ── Header ── */
-    header {
-      background: linear-gradient(160deg, var(--green-dark) 0%, var(--green-mid) 100%);
-      color: #fff;
-      padding: 48px 24px 56px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-    header::before {
-      content: "⛰";
-      position: absolute;
-      font-size: 280px;
-      opacity: .06;
-      right: -40px;
-      top: -60px;
-      line-height: 1;
-      pointer-events: none;
-    }
-    .org-name {
-      font-size: clamp(13px, 3vw, 15px);
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      opacity: .75;
-      margin-bottom: 10px;
-    }
-    header h1 {
-      font-size: clamp(26px, 6vw, 42px);
-      font-weight: 800;
-      letter-spacing: -.01em;
-    }
-    header p.tagline {
-      margin-top: 12px;
-      font-size: clamp(14px, 3.5vw, 17px);
-      opacity: .85;
-    }
-
-    /* ── Layout ── */
-    main {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 0 16px 80px;
-    }
-
-    /* ── Series section ── */
-    .series {
-      margin-top: 48px;
-    }
-    .series-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-    .series-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
+    .nav-link:hover { color: var(--on-band); border-bottom-color: var(--signal); }
+    .nav-count {
       flex-shrink: 0;
+      padding: 6px 12px;
+      background: var(--signal);
+      color: var(--on-signal);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .1em;
     }
-    .series-icon.mountain { background: #e6f4e9; }
-    .series-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--green-dark);
-    }
-    .series-subtitle {
-      font-size: 13px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-
-    /* ── Cards grid ── */
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
+    @media (max-width: 900px) {
+      .nav-inner { gap: 20px; }
+      .nav-home { order: -2; font-size: 15px; margin-right: 8px; }
+      .nav-count { order: -1; padding: 5px 9px; font-size: 11px; }
+      .nav-link { order: 0; }
     }
 
-    .card {
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      overflow: hidden;
+    /* ── 首屏 ── */
+    .hero {
+      position: relative;
       display: flex;
-      flex-direction: column;
-      transition: box-shadow .2s, transform .2s;
-    }
-    .card:hover {
-      box-shadow: 0 8px 32px rgba(30,77,43,.12);
-      transform: translateY(-2px);
-    }
-
-    .card-banner {
-      height: 8px;
-    }
-
-    .card-img {
-      height: 180px;
+      align-items: center;
+      min-height: clamp(430px, 44vw, 588px);
+      background: var(--band);
       overflow: hidden;
-      margin: 0;
     }
-    .card-img img {
+    .hero-photo {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
+      opacity: .5;
+    }
+    .hero-scrim {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(94deg, rgba(59, 78, 64, .90) 0%, rgba(59, 78, 64, .70) 46%, rgba(59, 78, 64, .28) 100%);
+    }
+    .hero-contours {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: #e8e2d4;
+      stroke-width: 1.1;
+      opacity: .17;
+      pointer-events: none;
+    }
+    .hero .shell {
+      position: relative;
+      width: 100%;
+      padding-top: 56px;
+      padding-bottom: 56px;
+    }
+    .hero-kicker {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 26px;
+    }
+    .hero-kicker span:first-child {
+      width: 46px;
+      height: 2px;
+      background: var(--signal);
+    }
+    .hero-kicker .key { color: #e4dfd1; }
+    .hero h1 {
+      max-width: 720px;
+      font-size: clamp(30px, 5.4vw, 62px);
+      font-weight: 900;
+      line-height: 1.26;
+      letter-spacing: -.03em;
+      color: var(--on-band);
+    }
+    .hero-lead {
+      max-width: 560px;
+      margin-top: 22px;
+      font-size: clamp(14.5px, 1.4vw, 17px);
+      line-height: 2;
+      color: var(--on-band-2);
+    }
+    .hero-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      max-width: 640px;
+      margin-top: 42px;
+      padding-top: 26px;
+      border-top: 1px solid rgba(232, 226, 212, .28);
+    }
+    .hero-stats b {
       display: block;
-      transition: transform .3s;
-    }
-    .card:hover .card-img img { transform: scale(1.04); }
-    .card-banner.open    { background: var(--green-light); }
-    .card-banner.closed  { background: #9e9e9e; }
-    .card-banner.soon    { background: var(--amber); }
-
-    .card-body {
-      padding: 20px 20px 16px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .card-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 10px;
-    }
-    .card-title {
-      font-size: 18px;
-      font-weight: 700;
-      line-height: 1.3;
-      flex: 1;
-    }
-
-    .badge {
-      font-size: 11px;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 32px;
       font-weight: 600;
-      letter-spacing: .04em;
-      padding: 3px 9px;
-      border-radius: 20px;
-      white-space: nowrap;
-      margin-left: 10px;
+      line-height: 1;
+      color: var(--on-band);
     }
-    .badge.open   { background: #e6f4e9; color: var(--green-dark); }
-    .badge.closed { background: #eee;    color: #777; }
-    .badge.soon   { background: #fff4e0; color: var(--amber-dark); }
-
-    .card-desc {
-      font-size: 14px;
-      color: var(--muted);
-      margin-bottom: 16px;
-      flex: 1;
+    .hero-stats b.is-signal { color: var(--signal-band); }
+    .hero-stats .key { display: block; margin-top: 6px; color: #b4bca8; }
+    @media (max-width: 720px) {
+      .hero { align-items: flex-end; }
+      .hero-photo { opacity: .58; object-position: 78% 50%; }
+      .hero-scrim { background: linear-gradient(6deg, rgba(59, 78, 64, .93) 12%, rgba(59, 78, 64, .55) 100%); }
+      .hero-stats { gap: 26px; margin-top: 30px; }
+      .hero-stats b { font-size: 26px; }
     }
 
-    .meta-list {
-      list-style: none;
+    /* ── 區段標題 ── */
+    .section-head {
       display: flex;
-      flex-direction: column;
-      gap: 6px;
+      align-items: flex-end;
+      gap: 22px;
+      padding-bottom: 16px;
+      margin-bottom: 30px;
+      border-bottom: 2px solid var(--ink);
+    }
+    .section-num {
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 46px;
+      font-weight: 600;
+      line-height: .82;
+      color: var(--signal);
+    }
+    .section-head > div { flex-grow: 1; }
+    .section-head h2 {
+      font-size: clamp(23px, 2.6vw, 32px);
+      font-weight: 900;
+      line-height: 1.28;
+      letter-spacing: -.02em;
+    }
+    .section-sub {
+      max-width: 340px;
+      text-align: right;
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+    @media (max-width: 900px) {
+      .section-head { flex-wrap: wrap; gap: 14px; }
+      .section-num { font-size: 34px; }
+      .section-sub { max-width: none; width: 100%; text-align: left; font-size: 13.5px; }
+    }
+
+    /* ── 現正開放報名看板 ── */
+    .board-head {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
       margin-bottom: 18px;
     }
-    .meta-list li {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      font-size: 13.5px;
-      color: var(--muted);
+    .board-head h2 { font-size: 12px; color: var(--ink); }
+    .board-head .line { flex-grow: 1; height: 1px; background: var(--rule-soft); }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 20px;
     }
-    .meta-list .icon {
-      font-size: 14px;
-      margin-top: 1px;
+    @media (max-width: 560px) { .board { grid-template-columns: 1fr; gap: 14px; } }
+    .board-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 22px 24px;
+      background: var(--card);
+      border: 1px solid var(--rule);
+      border-top: 3px solid var(--signal);
+      color: var(--ink);
+      transition: box-shadow .2s, transform .2s;
+    }
+    .board-item:hover {
+      color: var(--ink);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(59, 78, 64, .14);
+    }
+    .board-date { flex-shrink: 0; width: 92px; }
+    .board-date b {
+      display: block;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 30px;
+      font-weight: 600;
+      line-height: 1;
+      letter-spacing: -.02em;
+    }
+    .board-date .key { display: block; margin-top: 5px; }
+    .board-body { flex-grow: 1; }
+    .board-body strong { display: block; font-size: 18px; font-weight: 700; line-height: 1.45; text-wrap: balance; }
+    .board-body span { display: block; margin-top: 3px; font-size: 13.5px; color: var(--muted); }
+    .board-go {
       flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--signal-dark);
+    }
+    @media (max-width: 720px) {
+      .board-item { gap: 16px; padding: 18px; }
+      .board-date { width: 76px; }
+      .board-date b { font-size: 25px; }
+      .board-body strong { font-size: 16px; }
+      .board-body span { font-size: 12.5px; }
+      .board-go span { display: none; }
+    }
+    @media (max-width: 560px) {
+      .board-item { gap: 14px; }
+      .board-date { width: 70px; }
+      .board-date b { font-size: 23px; }
+      .board-date .key { font-size: 10px; letter-spacing: .1em; }
+      .board-body strong { font-size: 15.5px; }
     }
 
-    /* ── 梯次列表（一卡多場次，各自報名） ── */
-    .session-list {
-      list-style: none;
+    /* ── 課程卡 ── */
+    .series { padding-top: 78px; scroll-margin-top: 68px; }
+    @media (max-width: 900px) { .series { padding-top: 52px; } }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    .card {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      margin-bottom: 16px;
+      background: var(--card);
+      border: 1px solid var(--rule);
+      transition: box-shadow .2s, transform .2s;
     }
-    .session-row {
+    .card:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(59, 78, 64, .13); }
+    .card-img { position: relative; height: 236px; overflow: hidden; }
+    .card-img .chip { position: absolute; left: 0; bottom: 0; }
+    .card-img .chip-closed { background: rgba(21, 32, 26, .82); border-color: transparent; color: #d9d3c4; }
+    .card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s; }
+    .card:hover .card-img img { transform: scale(1.03); }
+    .card.is-closed .card-img img { filter: grayscale(.6) contrast(1.02); }
+    .card-body {
       display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      padding: 28px 28px 26px;
+    }
+    .card-top { margin-bottom: 14px; }
+    .card-top .key { margin-bottom: 6px; }
+    .card--wide .card-top {
+      display: flex;
+      align-items: flex-start;
       justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: #fafcfa;
+      gap: 20px;
     }
-    .session-info {
-      font-size: 13.5px;
-      line-height: 1.45;
+    .card h3 {
+      font-size: 23px;
+      font-weight: 700;
+      line-height: 1.4;
+      letter-spacing: -.01em;
     }
-    .session-info .place {
-      font-weight: 600;
-      color: var(--text);
-    }
-    .session-info .price {
-      color: var(--muted);
-    }
-    .btn-sm {
-      flex-shrink: 0;
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-size: 13.5px;
-      font-weight: 600;
-      text-decoration: none;
-      text-align: center;
-      background: var(--green-mid);
-      color: #fff;
-      white-space: nowrap;
-      transition: opacity .15s;
-    }
-    .btn-sm:hover { opacity: .88; }
-
-    .btn {
-      display: block;
-      width: 100%;
-      padding: 12px;
-      border-radius: 8px;
+    .card-desc {
+      margin-bottom: 20px;
       font-size: 15px;
-      font-weight: 600;
-      text-align: center;
-      text-decoration: none;
-      cursor: pointer;
-      transition: opacity .15s, filter .15s;
-    }
-    .btn:hover { opacity: .88; filter: brightness(1.05); }
-    .btn.primary {
-      background: var(--green-mid);
-      color: #fff;
-    }
-    .btn.disabled {
-      background: #e0e0e0;
-      color: #999;
-      pointer-events: none;
-    }
-    .btn.soon-btn {
-      background: var(--amber);
-      color: #fff;
-      pointer-events: none;
-    }
-
-    /* ── Divider ── */
-    .divider {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 48px 0 0;
-    }
-
-    /* ── Footer ── */
-    footer {
-      text-align: center;
-      padding: 32px 16px;
-      font-size: 13px;
+      line-height: 1.95;
       color: var(--muted);
     }
-    footer a { color: var(--green-mid); text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
+
+    /* 橫式大卡：開放報名中的課程 */
+    .card--wide { flex-direction: row; }
+    .card--wide .card-img { position: relative; flex: 0 0 452px; height: auto; min-height: 340px; }
+    .card--wide .card-img img { position: absolute; inset: 0; }
+    .card--wide .card-body { padding: 34px 36px 32px; }
+    .card--wide h3 { font-size: clamp(22px, 2.2vw, 27px); line-height: 1.35; }
+    .card--wide .spec-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0 40px;
+    }
+    @media (max-width: 900px) {
+      .card--wide { flex-direction: column; }
+      .card--wide .card-img { flex: none; height: 220px; min-height: 0; }
+      .card--wide .card-img img { position: static; }
+      .card--wide .card-body { padding: 26px 22px 24px; }
+    }
+    @media (max-width: 620px) {
+      .card--wide .spec-list { grid-template-columns: 1fr; }
+    }
+
+    /* ── 狀態標籤 ── */
+    .chip {
+      flex-shrink: 0;
+      align-self: flex-start;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .12em;
+      padding: 5px 10px;
+      white-space: nowrap;
+    }
+    .chip-open { background: var(--signal); color: var(--on-signal); }
+    .chip-closed { border: 1px solid #b6ac94; color: var(--dim); }
+
+    /* ── 規格列：日期／地點／人數／費用 ── */
+    /* 規格列後方吸收多餘空間，讓同列卡片的按鈕對齊底部 */
+    .card-body .spec-list { margin-bottom: auto; }
+
+    .spec-row {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      padding: 11px 0;
+      border-top: 1px solid var(--rule);
+    }
+    .spec-key {
+      flex-shrink: 0;
+      width: 42px;
+      font-size: 12.5px;
+      font-weight: 500;
+      letter-spacing: .1em;
+      color: var(--dim);
+    }
+    .spec-val { font-size: 15px; font-weight: 500; line-height: 1.6; }
+
+    /* ── 按鈕 ── */
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 24px;
+      padding: 16px 20px;
+      background: var(--signal);
+      color: var(--on-signal);
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      transition: background .15s;
+    }
+    .btn:hover { background: var(--signal-dark); color: var(--on-signal); }
+    .btn-off {
+      margin-top: 24px;
+      padding: 16px 20px;
+      border: 1px solid var(--rule-soft);
+      color: var(--dim);
+      font-size: 15px;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    /* ── 課程理念引言帶 ── */
+    .quote { margin-top: 78px; background: var(--band); }
+    .quote .shell { padding-top: 62px; padding-bottom: 62px; }
+    .quote .key { margin-bottom: 20px; color: var(--on-band-3); }
+    .quote p {
+      max-width: 900px;
+      font-size: clamp(19px, 2.4vw, 30px);
+      font-weight: 700;
+      line-height: 1.68;
+      letter-spacing: -.01em;
+      color: var(--on-band);
+    }
+    @media (max-width: 900px) { .quote { margin-top: 52px; } .quote .shell { padding-top: 40px; padding-bottom: 40px; } }
+    @media (max-width: 720px) { .quote br { display: none; } }
+
+    /* ── 頁尾 ── */
+    footer { margin-top: 96px; background: var(--band); color: var(--on-band-2); }
+    .footer-main {
+      display: flex;
+      gap: 60px;
+      padding-top: 56px;
+      padding-bottom: 44px;
+    }
+    .footer-main > div:first-child { flex-grow: 1; }
+    .footer-org { font-size: 19px; font-weight: 900; color: var(--on-band); }
+    .footer-main .key { color: var(--on-band-3); }
+    .footer-main p { font-size: 14px; line-height: 1.95; }
+    .footer-contact { flex-shrink: 0; }
+    .footer-contact p { margin-top: 12px; font-size: 15px; line-height: 2; }
+    .footer-contact a { color: var(--on-band); }
+    .footer-contact a:hover { color: var(--signal); }
+    .footer-bottom { border-top: 1px solid var(--band-line); }
+    .footer-bottom .shell { padding-top: 16px; padding-bottom: 16px; }
+    .footer-bottom .key { color: var(--on-band-3); }
+    @media (max-width: 720px) {
+      footer { margin-top: 60px; }
+      .footer-main { flex-direction: column; gap: 30px; padding-top: 40px; padding-bottom: 28px; }
+    }
   </style>
 
-  <!-- JSON-LD 結構化資料：讓 Google 顯示活動日期／地點的 Rich Results -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -460,267 +636,341 @@
 </head>
 <body>
 
+<div class="topbar">
+  <div class="shell">
+    <span class="key">Taiwan Mountain Self-Guide Association</span>
+    <a class="key" href="mailto:services@mtselfguide.com">services@mtselfguide.com</a>
+  </div>
+</div>
+
 <nav class="nav" aria-label="課程系列導覽">
-  <div class="nav-inner">
-    <a class="nav-home" href="#top">⛰ 課程總覽</a>
-    <a href="#hiking">新手入門課</a>
-    <a href="#terrain">困難地形通過</a>
-    <a href="#comm-safety">通訊安全講座</a>
-    <a href="#fitness">體能訓練</a>
+  <div class="shell nav-inner">
+    <a class="nav-home" href="#top">台灣自主登山能力推廣協會</a>
+    <a class="nav-link" href="#hiking">01 新手入門</a>
+    <a class="nav-link" href="#terrain">02 困難地形</a>
+    <a class="nav-link" href="#comm-safety">03 通訊安全</a>
+    <a class="nav-link" href="#fitness">04 體能訓練</a>
+    <span class="mono nav-count">2 門開放報名</span>
   </div>
 </nav>
 
-<header id="top">
-  <p class="org-name">【台灣自主登山能力推廣協會】</p>
-  <h1>課程活動報名</h1>
-  <p class="tagline">探索戶外、走入山林，每一步都是收穫</p>
+<header class="hero" id="top">
+  <img class="hero-photo" src="assets/og-cover.jpg" alt="登山者背著背包在高山池畔休息，遠方是雲霧繚繞的山巒" fetchpriority="high" decoding="async" />
+  <div class="hero-scrim"></div>
+  <svg class="hero-contours" viewBox="0 0 1460 660" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0,-30.0 C52.0,-30.0 52.0,-9.6 104,-9.6 C156.0,-9.6 156.0,-4.1 208,-4.1 C260.0,-4.1 260.0,-12.7 312,-12.7 C364.0,-12.7 364.0,-22.7 416,-22.7 C468.0,-22.7 468.0,-26.5 520,-26.5 C572.0,-26.5 572.0,-29.9 624,-29.9 C676.0,-29.9 676.0,-40.9 728,-40.9 C780.0,-40.9 780.0,-55.0 832,-55.0 C884.0,-55.0 884.0,-57.8 936,-57.8 C988.0,-57.8 988.0,-42.9 1040,-42.9 C1092.0,-42.9 1092.0,-20.7 1144,-20.7 C1196.0,-20.7 1196.0,-8.2 1248,-8.2 C1300.0,-8.2 1300.0,-10.5 1352,-10.5 C1404.0,-10.5 1404.0,-17.6 1456,-17.6" />
+        <path d="M0,53.8 C52.0,53.8 52.0,66.3 104,66.3 C156.0,66.3 156.0,49.4 208,49.4 C260.0,49.4 260.0,32.5 312,32.5 C364.0,32.5 364.0,27.5 416,27.5 C468.0,27.5 468.0,16.0 520,16.0 C572.0,16.0 572.0,-5.4 624,-5.4 C676.0,-5.4 676.0,-8.2 728,-8.2 C780.0,-8.2 780.0,22.0 832,22.0 C884.0,22.0 884.0,55.4 936,55.4 C988.0,55.4 988.0,60.1 1040,60.1 C1092.0,60.1 1092.0,45.8 1144,45.8 C1196.0,45.8 1196.0,38.4 1248,38.4 C1300.0,38.4 1300.0,33.8 1352,33.8 C1404.0,33.8 1404.0,13.1 1456,13.1" />
+        <path d="M0,137.4 C52.0,137.4 52.0,118.9 104,118.9 C156.0,118.9 156.0,88.2 208,88.2 C260.0,88.2 260.0,79.7 312,79.7 C364.0,79.7 364.0,61.5 416,61.5 C468.0,61.5 468.0,38.0 520,38.0 C572.0,38.0 572.0,62.6 624,62.6 C676.0,62.6 676.0,117.4 728,117.4 C780.0,117.4 780.0,130.5 832,130.5 C884.0,130.5 884.0,105.8 936,105.8 C988.0,105.8 988.0,93.9 1040,93.9 C1092.0,93.9 1092.0,81.5 1144,81.5 C1196.0,81.5 1196.0,45.9 1248,45.9 C1300.0,45.9 1300.0,36.8 1352,36.8 C1404.0,36.8 1404.0,83.5 1456,83.5" />
+        <path d="M0,170.2 C52.0,170.2 52.0,155.6 104,155.6 C156.0,155.6 156.0,142.9 208,142.9 C260.0,142.9 260.0,138.7 312,138.7 C364.0,138.7 364.0,136.0 416,136.0 C468.0,136.0 468.0,127.8 520,127.8 C572.0,127.8 572.0,119.4 624,119.4 C676.0,119.4 676.0,123.7 728,123.7 C780.0,123.7 780.0,143.1 832,143.1 C884.0,143.1 884.0,164.2 936,164.2 C988.0,164.2 988.0,171.0 1040,171.0 C1092.0,171.0 1092.0,162.4 1144,162.4 C1196.0,162.4 1196.0,150.9 1248,150.9 C1300.0,150.9 1300.0,145.8 1352,145.8 C1404.0,145.8 1404.0,142.9 1456,142.9" />
+        <path d="M0,222.5 C52.0,222.5 52.0,197.6 104,197.6 C156.0,197.6 156.0,190.5 208,190.5 C260.0,190.5 260.0,186.2 312,186.2 C364.0,186.2 364.0,173.0 416,173.0 C468.0,173.0 468.0,172.0 520,172.0 C572.0,172.0 572.0,200.7 624,200.7 C676.0,200.7 676.0,235.0 728,235.0 C780.0,235.0 780.0,239.1 832,239.1 C884.0,239.1 884.0,217.9 936,217.9 C988.0,217.9 988.0,202.2 1040,202.2 C1092.0,202.2 1092.0,197.7 1144,197.7 C1196.0,197.7 1196.0,184.7 1248,184.7 C1300.0,184.7 1300.0,166.2 1352,166.2 C1404.0,166.2 1404.0,171.5 1456,171.5" />
+        <path d="M0,260.0 C52.0,260.0 52.0,240.9 104,240.9 C156.0,240.9 156.0,238.4 208,238.4 C260.0,238.4 260.0,223.3 312,223.3 C364.0,223.3 364.0,232.0 416,232.0 C468.0,232.0 468.0,283.6 520,283.6 C572.0,283.6 572.0,313.2 624,313.2 C676.0,313.2 676.0,286.2 728,286.2 C780.0,286.2 780.0,256.4 832,256.4 C884.0,256.4 884.0,249.4 936,249.4 C988.0,249.4 988.0,230.7 1040,230.7 C1092.0,230.7 1092.0,213.7 1144,213.7 C1196.0,213.7 1196.0,247.4 1248,247.4 C1300.0,247.4 1300.0,299.7 1352,299.7 C1404.0,299.7 1404.0,302.8 1456,302.8" />
+        <path d="M0,307.1 C52.0,307.1 52.0,305.1 104,305.1 C156.0,305.1 156.0,305.4 208,305.4 C260.0,305.4 260.0,301.3 312,301.3 C364.0,301.3 364.0,298.6 416,298.6 C468.0,298.6 468.0,308.2 520,308.2 C572.0,308.2 572.0,329.1 624,329.1 C676.0,329.1 676.0,345.9 728,345.9 C780.0,345.9 780.0,345.2 832,345.2 C884.0,345.2 884.0,330.3 936,330.3 C988.0,330.3 988.0,316.0 1040,316.0 C1092.0,316.0 1092.0,310.9 1144,310.9 C1196.0,310.9 1196.0,309.2 1248,309.2 C1300.0,309.2 1300.0,302.7 1352,302.7 C1404.0,302.7 1404.0,294.8 1456,294.8" />
+        <path d="M0,354.3 C52.0,354.3 52.0,357.5 104,357.5 C156.0,357.5 156.0,353.4 208,353.4 C260.0,353.4 260.0,354.2 312,354.2 C364.0,354.2 364.0,379.6 416,379.6 C468.0,379.6 468.0,412.2 520,412.2 C572.0,412.2 572.0,415.6 624,415.6 C676.0,415.6 676.0,388.9 728,388.9 C780.0,388.9 780.0,366.1 832,366.1 C884.0,366.1 884.0,361.9 936,361.9 C988.0,361.9 988.0,357.5 1040,357.5 C1092.0,357.5 1092.0,346.2 1144,346.2 C1196.0,346.2 1196.0,351.8 1248,351.8 C1300.0,351.8 1300.0,384.8 1352,384.8 C1404.0,384.8 1404.0,414.3 1456,414.3" />
+        <path d="M0,406.9 C52.0,406.9 52.0,409.0 104,409.0 C156.0,409.0 156.0,409.8 208,409.8 C260.0,409.8 260.0,447.4 312,447.4 C364.0,447.4 364.0,488.1 416,488.1 C468.0,488.1 468.0,470.9 520,470.9 C572.0,470.9 572.0,425.7 624,425.7 C676.0,425.7 676.0,411.5 728,411.5 C780.0,411.5 780.0,410.3 832,410.3 C884.0,410.3 884.0,397.9 936,397.9 C988.0,397.9 988.0,414.8 1040,414.8 C1092.0,414.8 1092.0,467.5 1144,467.5 C1196.0,467.5 1196.0,486.8 1248,486.8 C1300.0,486.8 1300.0,452.6 1352,452.6 C1404.0,452.6 1404.0,425.0 1456,425.0" />
+        <path d="M0,479.4 C52.0,479.4 52.0,479.4 104,479.4 C156.0,479.4 156.0,481.2 208,481.2 C260.0,481.2 260.0,493.5 312,493.5 C364.0,493.5 364.0,512.5 416,512.5 C468.0,512.5 468.0,522.7 520,522.7 C572.0,522.7 572.0,514.2 624,514.2 C676.0,514.2 676.0,494.5 728,494.5 C780.0,494.5 780.0,480.0 832,480.0 C884.0,480.0 884.0,477.4 936,477.4 C988.0,477.4 988.0,479.0 1040,479.0 C1092.0,479.0 1092.0,476.6 1144,476.6 C1196.0,476.6 1196.0,474.1 1248,474.1 C1300.0,474.1 1300.0,482.3 1352,482.3 C1404.0,482.3 1404.0,502.2 1456,502.2" />
+        <path d="M0,535.4 C52.0,535.4 52.0,538.1 104,538.1 C156.0,538.1 156.0,558.3 208,558.3 C260.0,558.3 260.0,586.9 312,586.9 C364.0,586.9 364.0,589.2 416,589.2 C468.0,589.2 468.0,559.1 520,559.1 C572.0,559.1 572.0,530.7 624,530.7 C676.0,530.7 676.0,527.0 728,527.0 C780.0,527.0 780.0,531.4 832,531.4 C884.0,531.4 884.0,528.3 936,528.3 C988.0,528.3 988.0,533.8 1040,533.8 C1092.0,533.8 1092.0,562.8 1144,562.8 C1196.0,562.8 1196.0,590.8 1248,590.8 C1300.0,590.8 1300.0,585.1 1352,585.1 C1404.0,585.1 1404.0,554.9 1456,554.9" />
+        <path d="M0,594.7 C52.0,594.7 52.0,614.8 104,614.8 C156.0,614.8 156.0,654.9 208,654.9 C260.0,654.9 260.0,653.8 312,653.8 C364.0,653.8 364.0,603.3 416,603.3 C468.0,603.3 468.0,573.3 520,573.3 C572.0,573.3 572.0,581.5 624,581.5 C676.0,581.5 676.0,584.5 728,584.5 C780.0,584.5 780.0,590.1 832,590.1 C884.0,590.1 884.0,631.2 936,631.2 C988.0,631.2 988.0,663.9 1040,663.9 C1092.0,663.9 1092.0,636.3 1144,636.3 C1196.0,636.3 1196.0,591.8 1248,591.8 C1300.0,591.8 1300.0,583.0 1352,583.0 C1404.0,583.0 1404.0,582.9 1456,582.9" />
+  </svg>
+  <div class="shell">
+    <p class="hero-kicker"><span></span><span class="key">2026 課程總覽 ／ Course Catalogue</span></p>
+    <h1>安全走入山林，<br />從自主能力開始</h1>
+    <p class="hero-lead">四個課程系列，從離線地圖、野營實戰、困難地形技術到體能訓練與山區通訊——把「依賴領隊」換成「自己判斷」。</p>
+    <div class="hero-stats">
+      <div><b class="is-signal">04</b><span class="key">課程系列</span></div>
+      <div><b>05</b><span class="key">課程與講座</span></div>
+      <div><b>02</b><span class="key">現正開放報名</span></div>
+    </div>
+  </div>
 </header>
 
 <main>
 
   <!-- ═══════════════════════════════════════════
-       系列一：登山系列
+       現正開放報名：把開課中的梯次提到最前面
   ════════════════════════════════════════════ -->
-  <section class="series" id="hiking">
-    <div class="series-header">
-      <div class="series-icon mountain">🏔️</div>
+  <section class="shell" style="padding-top: 46px;" aria-labelledby="board-title">
+    <div class="board-head">
+      <h2 class="key" id="board-title">Open for Registration ／ 現正開放報名</h2>
+      <span class="line"></span>
+    </div>
+    <div class="board">
+
+      <a class="board-item" href="https://forms.gle/T7KzQtEXwVeevw259" target="_blank" rel="noopener">
+        <span class="board-date"><b>09.12</b><span class="key">SAT 16:00</span></span>
+        <span class="board-body">
+          <strong>科學化肌力登山指南工作坊</strong>
+          <span>高雄・璞實生活 ｜ 限額 8 人 ｜ NT$1,000</span>
+        </span>
+        <span class="board-go"><span>報名</span>
+          <svg width="20" height="12" viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M0 6h18M13 1l5 5-5 5" /></svg>
+        </span>
+      </a>
+
+      <a class="board-item" href="https://forms.gle/ySAN9scVdrKiK14b9" target="_blank" rel="noopener">
+        <span class="board-date"><b>10.03</b><span class="key">SAT–SUN</span></span>
+        <span class="board-body">
+          <strong>困難地形通過課程</strong>
+          <span>高雄茂林 ｜ 6 人成團・限額 12 人 ｜ NT$5,000</span>
+        </span>
+        <span class="board-go"><span>報名</span>
+          <svg width="20" height="12" viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M0 6h18M13 1l5 5-5 5" /></svg>
+        </span>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       系列一：給登山新手入門課
+  ════════════════════════════════════════════ -->
+  <section class="series shell" id="hiking">
+    <div class="section-head">
+      <span class="section-num">01</span>
       <div>
-        <h2 class="series-title">給登山新手入門課</h2>
-        <p class="series-subtitle">從基礎技能到野外過夜，循序漸進走向山林</p>
+        <p class="key">Fundamentals</p>
+        <h2>給登山新手入門課</h2>
       </div>
+      <p class="section-sub">從基礎技能到野外過夜，循序漸進走向山林</p>
     </div>
 
     <div class="cards">
 
-      <!-- 課程卡 1：離線地圖（目前暫無場次） -->
-      <article class="card">
-        <div class="card-banner closed"></div>
+      <!-- 手機離線地圖（目前暫無場次） -->
+      <article class="card is-closed">
         <figure class="card-img">
           <img src="assets/card-offline-map.jpg" alt="學員們在步道涼亭下練習操作手機離線地圖" loading="lazy" />
+          <span class="chip chip-closed">暫無場次 CLOSED</span>
         </figure>
         <div class="card-body">
           <div class="card-top">
-            <h3 class="card-title">手機離線地圖【山林日誌】實用教學</h3>
-            <span class="badge closed">暫無場次</span>
+            <p class="key">Offline Navigation</p>
+            <h3>手機離線地圖【山林日誌】實用教學</h3>
           </div>
-          <p class="card-desc">
-            這一堂登山新手入門課，是為「完全不會用手機 GPS 離線地圖」的山友所設計，同時也是熟悉登山者的檢視課。
-            邀請你一起來，學會掌握自己的指北針方向感，走一趟安全、安心的郊山路。
-          </p>
-          <ul class="meta-list">
-            <li><span class="icon">📅</span><span>下一場開課時間規劃中，敬請關注粉絲專頁</span></li>
-            <li><span class="icon">📋</span><span>出發前手機安裝山林日誌App，即可參加</span></li>
-          </ul>
-          <span class="btn disabled">目前無場次，敬請期待</span>
+          <p class="card-desc">為「完全不會用手機 GPS 離線地圖」的山友所設計，同時也是熟悉登山者的檢視課。學會掌握自己的指北針方向感，走一趟安全、安心的郊山路。</p>
+          <div class="spec-list">
+            <div class="spec-row"><span class="spec-key">日期</span><span class="spec-val">下一場規劃中，敬請關注粉絲專頁</span></div>
+            <div class="spec-row"><span class="spec-key">準備</span><span class="spec-val">出發前手機安裝「山林日誌」App，即可參加</span></div>
+          </div>
+          <p class="btn-off">目前無場次，開課時間規劃中</p>
         </div>
       </article>
 
-      <!-- 課程卡 2：兩日野營（目前暫無場次） -->
-      <article class="card">
-        <div class="card-banner closed"></div>
+      <!-- 兩天一夜野營（目前暫無場次） -->
+      <article class="card is-closed">
         <figure class="card-img">
           <img src="assets/card-camping.jpg" alt="森林營地中架設的多頂帳篷，學員在天幕下整理裝備" loading="lazy" />
+          <span class="chip chip-closed">暫無場次 CLOSED</span>
         </figure>
         <div class="card-body">
           <div class="card-top">
-            <h3 class="card-title">兩天一夜野營實戰系列</h3>
-            <span class="badge closed">暫無場次</span>
+            <p class="key">Overnight Field Practice</p>
+            <h3>兩天一夜野營實戰系列</h3>
           </div>
-          <p class="card-desc">
-            你是否曾在打包時，因為擔心「萬一」而塞進了過多不必要的裝備？ 你是否在行進間，總是依賴領隊的背影，而忘了抬頭確認自己的位置？
-            「自主登山」，不是什麼都帶，也不是什麼都不帶，而是理解 「需求 vs. 恐懼」 的界線 。
-            在兩天一夜的實戰中，將地圖知識轉化為行進直覺，並在真實環境中演練風險管理。
-          </p>
-          <ul class="meta-list">
-            <li><span class="icon">📅</span><span>下一梯次時間規劃中，敬請關注粉絲專頁</span></li>
-            <li><span class="icon">👥</span><span>每梯限額 6 人，費用含接駁</span></li>
-            <li><span class="icon">📋</span><span>需自備帳篷、睡袋等裝備，於行前會安排說明會</span></li>
-          </ul>
-          <span class="btn disabled">目前無場次，敬請期待</span>
+          <p class="card-desc">打包時，你是否因為擔心「萬一」而塞進過多裝備？行進間，是否總是依賴領隊的背影，忘了抬頭確認自己的位置？在兩天一夜的實戰中，把地圖知識轉化為行進直覺，並在真實環境中演練裝備管理與風險應變。</p>
+          <div class="spec-list">
+            <div class="spec-row"><span class="spec-key">日期</span><span class="spec-val">下一梯次規劃中，敬請關注粉絲專頁</span></div>
+            <div class="spec-row"><span class="spec-key">人數</span><span class="spec-val">每梯限額 6 人，費用含接駁</span></div>
+            <div class="spec-row"><span class="spec-key">準備</span><span class="spec-val">需自備帳篷、睡袋等裝備，行前安排說明會</span></div>
+          </div>
+          <p class="btn-off">目前無場次，開課時間規劃中</p>
         </div>
       </article>
 
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       課程理念（引自「兩天一夜野營實戰」課程說明）
+  ════════════════════════════════════════════ -->
+  <section class="quote">
+    <div class="shell">
+      <p class="key">課程理念 ／ Principle</p>
+      <p>「自主登山」不是什麼都帶，也不是什麼都不帶，<br />而是理解「需求 vs. 恐懼」的界線。</p>
     </div>
   </section>
 
   <!-- ═══════════════════════════════════════════
        系列二：困難地形通過技術
   ════════════════════════════════════════════ -->
-  <hr class="divider" />
-  <section class="series" id="terrain">
-    <div class="series-header">
-      <div class="series-icon mountain">🧗</div>
+  <section class="series shell" id="terrain">
+    <div class="section-head">
+      <span class="section-num">02</span>
       <div>
-        <h2 class="series-title">困難地形通過技術</h2>
-        <p class="series-subtitle">繩索、渡溪與團隊協作，學會判斷該通過還是該撤退</p>
+        <p class="key">Technical Terrain</p>
+        <h2>困難地形通過技術</h2>
       </div>
+      <p class="section-sub">繩索、渡溪與團隊協作，學會判斷該通過還是該撤退</p>
     </div>
 
-    <div class="cards">
-
-      <!-- 課程卡：困難地形通過課程（高雄茂林 10/3–4） -->
-      <article class="card">
-        <div class="card-banner open"></div>
-        <figure class="card-img">
-          <img src="assets/card-terrain.jpg" alt="學員在陡峭巨石地形上以繩索確保，逐一通過" loading="lazy" />
-        </figure>
-        <div class="card-body">
-          <div class="card-top">
-            <h3 class="card-title">困難地形通過課程</h3>
-            <span class="badge open">報名中</span>
+    <article class="card card--wide">
+      <figure class="card-img">
+        <img src="assets/card-terrain.jpg" alt="學員在陡峭巨石地形上以繩索確保，逐一通過" loading="lazy" />
+      </figure>
+      <div class="card-body">
+        <div class="card-top">
+          <div>
+            <p class="key">Technical Terrain</p>
+            <h3>困難地形通過課程</h3>
           </div>
-          <p class="card-desc">
-            這不是單純的垂降體驗，也不是激流救生課程。我們將從登山途中可能遇到的困難地形出發，
-            學習如何觀察環境、判斷風險、選擇通過方式，並運用基礎繩索、團隊協作與渡溪技巧完成任務。
-            更重要的是學習判斷：什麼時候可以通過，什麼時候應該等待、改道或撤退。
-          </p>
-          <ul class="meta-list">
-            <li><span class="icon">📅</span><time datetime="2026-10-03">10 月 3–4 日（六日）</time></li>
-            <li><span class="icon">📍</span><span>高雄茂林｜集合地點：7-ELEVEN 茂林門市</span></li>
-            <li><span class="icon">👥</span><span>6 人成團，限額 12 人</span></li>
-            <li><span class="icon">💰</span><span>$5,000／人</span></li>
-          </ul>
-          <a class="btn primary"
-             href="https://forms.gle/ySAN9scVdrKiK14b9"
-             target="_blank" rel="noopener">
-            立即報名 →
-          </a>
+          <span class="chip chip-open">報名中 OPEN</span>
         </div>
-      </article>
-
-    </div>
+        <p class="card-desc">這不是單純的垂降體驗，也不是激流救生課程。我們從登山途中可能遇到的困難地形出發，學習觀察環境、判斷風險、選擇通過方式，並運用基礎繩索、團隊協作與渡溪技巧完成任務。更重要的是學會判斷：什麼時候可以通過，什麼時候應該等待、改道或撤退。</p>
+        <div class="spec-list">
+          <div class="spec-row"><span class="spec-key">日期</span><span class="spec-val"><time datetime="2026-10-03">10 月 3–4 日（六・日）</time></span></div>
+          <div class="spec-row"><span class="spec-key">地點</span><span class="spec-val">高雄茂林<br />集合：7-ELEVEN 茂林門市</span></div>
+          <div class="spec-row"><span class="spec-key">人數</span><span class="spec-val">6 人成團，限額 12 人</span></div>
+          <div class="spec-row"><span class="spec-key">費用</span><span class="spec-val">NT$5,000 ／人</span></div>
+        </div>
+        <a class="btn" href="https://forms.gle/ySAN9scVdrKiK14b9" target="_blank" rel="noopener">
+          <span>立即報名</span>
+          <svg width="20" height="12" viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M0 6h18M13 1l5 5-5 5" /></svg>
+        </a>
+      </div>
+    </article>
   </section>
 
   <!-- ═══════════════════════════════════════════
        系列三：登山通訊安全講座
   ════════════════════════════════════════════ -->
-  <hr class="divider" />
-  <section class="series" id="comm-safety">
-    <div class="series-header">
-      <div class="series-icon mountain">📡</div>
+  <section class="series shell" id="comm-safety">
+    <div class="section-head">
+      <span class="section-num">03</span>
       <div>
-        <h2 class="series-title">登山通訊安全講座</h2>
-        <p class="series-subtitle">山區通訊不斷線，讓每一次出發都多一層保障</p>
+        <p class="key">Comms &amp; Safety</p>
+        <h2>登山通訊安全講座</h2>
       </div>
+      <p class="section-sub">山區通訊不斷線，讓每一次出發都多一層保障</p>
     </div>
 
-    <div class="cards">
-
-      <!-- 講座卡：Garmin inReach（目前暫無場次） -->
-      <article class="card">
-        <div class="card-banner closed"></div>
-        <figure class="card-img">
-          <img src="assets/card-inreach.jpg" alt="講師在教室向學員講解台灣山區通訊涵蓋範圍" loading="lazy" />
-        </figure>
-        <div class="card-body">
-          <div class="card-top">
-            <h3 class="card-title">Garmin inReach 教學</h3>
-            <span class="badge closed">暫無場次</span>
+    <article class="card card--wide is-closed">
+      <figure class="card-img">
+        <img src="assets/card-inreach.jpg" alt="講師在教室向學員講解台灣山區通訊涵蓋範圍" loading="lazy" />
+      </figure>
+      <div class="card-body">
+        <div class="card-top">
+          <div>
+            <p class="key">Satellite Communication</p>
+            <h3>Garmin inReach 教學</h3>
           </div>
-          <p class="card-desc">
-            當手機收不到訊號，你還有辦法對外聯絡嗎？本講座帶你認識衛星通訊裝置 Garmin inReach
-            的功能與實際操作，建立山區通訊安全觀念，學會在關鍵時刻發出正確的求援訊息。
-          </p>
-          <ul class="meta-list">
-            <li><span class="icon">📅</span><span>下一場開課時間規劃中，敬請關注粉絲專頁</span></li>
-            <li><span class="icon">📋</span><span>不需自備裝備，現場提供實機操作</span></li>
-          </ul>
-          <span class="btn disabled">目前無場次，敬請期待</span>
+          <span class="chip chip-closed">暫無場次 CLOSED</span>
         </div>
-      </article>
-
-    </div>
+        <p class="card-desc">當手機收不到訊號，你還有辦法對外聯絡嗎？本講座帶你認識衛星通訊裝置 Garmin inReach 的功能與實際操作，建立山區通訊安全觀念，學會在關鍵時刻發出正確的求援訊息。</p>
+        <div class="spec-list">
+          <div class="spec-row"><span class="spec-key">日期</span><span class="spec-val">下一場規劃中，敬請關注粉絲專頁</span></div>
+          <div class="spec-row"><span class="spec-key">準備</span><span class="spec-val">不需自備裝備，現場提供實機操作</span></div>
+        </div>
+        <p class="btn-off">目前無場次，開課時間規劃中</p>
+      </div>
+    </article>
   </section>
 
   <!-- ═══════════════════════════════════════════
        系列四：登山體能訓練
   ════════════════════════════════════════════ -->
-  <hr class="divider" />
-  <section class="series" id="fitness">
-    <div class="series-header">
-      <div class="series-icon mountain">💪</div>
+  <section class="series shell" id="fitness">
+    <div class="section-head">
+      <span class="section-num">04</span>
       <div>
-        <h2 class="series-title">登山體能訓練</h2>
-        <p class="series-subtitle">用科學方法，鍛鍊帶你上山的身體</p>
+        <p class="key">Strength &amp; Conditioning</p>
+        <h2>登山體能訓練</h2>
       </div>
+      <p class="section-sub">用科學方法，鍛鍊帶你上山的身體</p>
     </div>
 
-    <div class="cards">
-
-      <!-- 工作坊卡：科學化肌力登山指南 -->
-      <article class="card">
-        <div class="card-banner open"></div>
-        <figure class="card-img">
-          <img src="assets/card-fitness.jpg" alt="健身房內學員在教練指導下進行硬舉訓練" loading="lazy" />
-        </figure>
-        <div class="card-body">
-          <div class="card-top">
-            <h3 class="card-title">科學化肌力登山指南－交流體驗工作坊</h3>
-            <span class="badge open">報名中</span>
+    <article class="card card--wide">
+      <figure class="card-img">
+        <img src="assets/card-fitness.jpg" alt="健身房內學員在教練指導下進行硬舉訓練" loading="lazy" />
+      </figure>
+      <div class="card-body">
+        <div class="card-top">
+          <div>
+            <p class="key">Strength &amp; Conditioning</p>
+            <h3>科學化肌力登山指南－交流體驗工作坊</h3>
           </div>
-          <p class="card-desc">
-            與璞實生活合辦，圍繞「能量系統與呼吸」、「核心肌力漸進負荷訓練」、「傷後恢復與強化」三大主軸。
-            講師耀禾與肌力教練軒韋深度對談，並透過徒手操作與重訓器材檢測關節活動度、模擬登山動作，
-            協助你調整發力習慣，把訓練成果帶上山。
-          </p>
-          <ul class="meta-list">
-            <li><span class="icon">📅</span><time datetime="2026-09-12T16:00">9 月 12 日（六）16:00–17:30</time></li>
-            <li><span class="icon">📍</span><span>璞實生活（高雄市三民區九如一路 26 號）</span></li>
-            <li><span class="icon">💰</span><span>費用 $1,000</span></li>
-            <li><span class="icon">👥</span><span>極限量小班制，限額 8 人，額滿即關閉報名</span></li>
-          </ul>
-          <a class="btn primary"
-             href="https://forms.gle/T7KzQtEXwVeevw259"
-             target="_blank" rel="noopener">
-            立即報名 →
-          </a>
+          <span class="chip chip-open">報名中 OPEN</span>
         </div>
-      </article>
-
-    </div>
+        <p class="card-desc">與璞實生活合辦，圍繞「能量系統與呼吸」、「核心肌力漸進負荷訓練」、「傷後恢復與強化」三大主軸。講師耀禾與肌力教練軒韋深度對談，並透過徒手操作與重訓器材檢測關節活動度、模擬登山動作，協助你調整發力習慣，把訓練成果帶上山。</p>
+        <div class="spec-list">
+          <div class="spec-row"><span class="spec-key">日期</span><span class="spec-val"><time datetime="2026-09-12T16:00">9 月 12 日（六）16:00–17:30</time></span></div>
+          <div class="spec-row"><span class="spec-key">地點</span><span class="spec-val">璞實生活<br />高雄市三民區九如一路 26 號</span></div>
+          <div class="spec-row"><span class="spec-key">人數</span><span class="spec-val">極限量小班制，限額 8 人</span></div>
+          <div class="spec-row"><span class="spec-key">費用</span><span class="spec-val">NT$1,000</span></div>
+        </div>
+        <a class="btn" href="https://forms.gle/T7KzQtEXwVeevw259" target="_blank" rel="noopener">
+          <span>立即報名</span>
+          <svg width="20" height="12" viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M0 6h18M13 1l5 5-5 5" /></svg>
+        </a>
+      </div>
+    </article>
   </section>
 
   <!-- ═══════════════════════════════════════════
-       系列（預留，未來新增）
-       複製以下區塊並取消註解即可新增系列
+       新增系列的樣板：複製下列區塊、取消註解即可
+       ・區段編號請接續（05、06⋯），並同步更新導覽列
+       ・報名中：card 不加 is-closed，用 chip-open + a.btn
+       ・暫無場次：card 加 is-closed，用 chip-closed + p.btn-off
   ════════════════════════════════════════════ -->
   <!--
-  <hr class="divider" />
-  <section class="series" id="river">
-    <div class="series-header">
-      <div class="series-icon mountain">🏞️</div>
+  <section class="series shell" id="river">
+    <div class="section-head">
+      <span class="section-num">05</span>
       <div>
-        <div class="series-title">溯溪系列</div>
-        <div class="series-subtitle">進入溪谷，探索水與岩石的世界</div>
+        <p class="key">River Tracing</p>
+        <h2>溯溪系列</h2>
       </div>
+      <p class="section-sub">進入溪谷，探索水與岩石的世界</p>
     </div>
-    <div class="cards">
-      <article class="card">
-        <div class="card-banner soon"></div>
-        <div class="card-body">
-          <div class="card-top">
-            <h3 class="card-title">溯溪基礎班</h3>
-            <span class="badge soon">即將開放</span>
+
+    <article class="card card--wide">
+      <figure class="card-img">
+        <img src="assets/card-river.jpg" alt="替換為課程照片的說明文字" loading="lazy" />
+      </figure>
+      <div class="card-body">
+        <div class="card-top">
+          <div>
+            <p class="key">River Tracing</p>
+            <h3>溯溪基礎班</h3>
           </div>
-          <p class="card-desc">課程說明文字。</p>
-          <ul class="meta-list">
-            <li><span class="icon">📅</span><span>日期 TBD</span></li>
-            <li><span class="icon">📍</span><span>地點 TBD</span></li>
-          </ul>
-          <span class="btn soon-btn">報名尚未開放</span>
+          <span class="chip chip-open">報名中 OPEN</span>
         </div>
-      </article>
-    </div>
+        <p class="card-desc">課程說明文字。</p>
+        <div class="spec-list">
+          <div class="spec-row"><span class="spec-key">日期</span><span class="spec-val"><time datetime="2026-01-01">1 月 1 日（三）</time></span></div>
+          <div class="spec-row"><span class="spec-key">地點</span><span class="spec-val">地點</span></div>
+          <div class="spec-row"><span class="spec-key">人數</span><span class="spec-val">限額 N 人</span></div>
+          <div class="spec-row"><span class="spec-key">費用</span><span class="spec-val">NT$0</span></div>
+        </div>
+        <a class="btn" href="https://forms.gle/" target="_blank" rel="noopener">
+          <span>立即報名</span>
+          <svg width="20" height="12" viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M0 6h18M13 1l5 5-5 5" /></svg>
+        </a>
+      </div>
+    </article>
   </section>
   -->
 
 </main>
 
 <footer>
-  <p>© 2026 台灣自主登山能力推廣協會．如有疑問請透過
-    <a href="https://www.facebook.com/profile.php?id=61577607467247" target="_blank" rel="noopener">Facebook 粉絲專頁</a>
-    聯絡我們
-  </p>
+  <div class="shell footer-main">
+    <div>
+      <p class="footer-org">台灣自主登山能力推廣協會</p>
+      <p class="key">Taiwan Mountain Self-Guide Association</p>
+      <p style="max-width: 420px; margin-top: 18px;">探索戶外、走入山林，每一步都是收穫。</p>
+    </div>
+    <div class="footer-contact">
+      <p class="key">聯絡 Contact</p>
+      <p>
+        <a href="mailto:services@mtselfguide.com">services@mtselfguide.com</a><br />
+        <a href="https://www.facebook.com/profile.php?id=61577607467247" target="_blank" rel="noopener">Facebook 粉絲專頁 →</a>
+      </p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="shell">
+      <span class="key">© 2026 台灣自主登山能力推廣協會</span>
+    </div>
+  </div>
 </footer>
 
 </body>
