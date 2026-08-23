@@ -21,6 +21,35 @@
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="登山者背著背包在高山池畔休息，遠方是雲霧繚繞的山巒" />
   <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       Google Analytics 4（GA4）
+       設定：把下面 GA_MEASUREMENT_ID 換成自己的評估 ID（格式 G-XXXXXXXXXX）
+       取得：analytics.google.com → 管理 → 資料串流 → 網頁串流 → 評估 ID
+       說明文件：docs/analytics.md
+       ※ 沒填 ID 時追蹤碼自動停用，不載入 Google 程式、不寫 cookie。
+  ════════════════════════════════════════════════════════════════ -->
+  <script>
+    // ↓↓↓ 只需要改這一行 ↓↓↓
+    var GA_MEASUREMENT_ID = 'G-L4Y8KVS8ZP';
+    // ↑↑↑ 只需要改這一行 ↑↑↑
+
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+
+    window.gaEnabled = /^G-[A-Z0-9]{6,}$/.test(GA_MEASUREMENT_ID)
+                    && GA_MEASUREMENT_ID.indexOf('XXXX') === -1;
+
+    if (window.gaEnabled) {
+      var gaScript = document.createElement('script');
+      gaScript.async = true;
+      gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_MEASUREMENT_ID;
+      document.head.appendChild(gaScript);
+
+      gtag('js', new Date());
+      gtag('config', GA_MEASUREMENT_ID);
+    }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Noto+Sans+TC:wght@400;500;700;900&amp;display=swap" />
@@ -640,7 +669,8 @@
 <div class="topbar">
   <div class="shell">
     <span class="key">Taiwan Mountain Self-Guide Association</span>
-    <a class="key" href="mailto:services@mtselfguide.com">services@mtselfguide.com</a>
+    <a class="key" href="mailto:services@mtselfguide.com"
+       data-ga-event="contact_click" data-ga-link-name="topbar_email">services@mtselfguide.com</a>
   </div>
 </div>
 
@@ -696,7 +726,11 @@
     </div>
     <div class="board">
 
-      <a class="board-item" href="https://forms.gle/T7KzQtEXwVeevw259" target="_blank" rel="noopener">
+      <a class="board-item" href="https://forms.gle/T7KzQtEXwVeevw259" target="_blank" rel="noopener"
+         data-ga-event="signup_click"
+         data-ga-course-id="strength-2026-09"
+         data-ga-course-name="科學化肌力登山指南－交流體驗工作坊"
+         data-ga-location="board">
         <span class="board-date"><b>09.12</b><span class="key">SAT 16:00</span></span>
         <span class="board-body">
           <strong>科學化肌力登山指南工作坊</strong>
@@ -707,7 +741,11 @@
         </span>
       </a>
 
-      <a class="board-item" href="https://forms.gle/ySAN9scVdrKiK14b9" target="_blank" rel="noopener">
+      <a class="board-item" href="https://forms.gle/ySAN9scVdrKiK14b9" target="_blank" rel="noopener"
+         data-ga-event="signup_click"
+         data-ga-course-id="terrain-2026-10"
+         data-ga-course-name="困難地形通過課程"
+         data-ga-location="board">
         <span class="board-date"><b>10.03</b><span class="key">SAT–SUN</span></span>
         <span class="board-body">
           <strong>困難地形通過課程</strong>
@@ -822,7 +860,11 @@
           <div class="spec-row"><span class="spec-key">人數</span><span class="spec-val">6 人成團，限額 12 人</span></div>
           <div class="spec-row"><span class="spec-key">費用</span><span class="spec-val">NT$5,000 ／人</span></div>
         </div>
-        <a class="btn" href="https://forms.gle/ySAN9scVdrKiK14b9" target="_blank" rel="noopener">
+        <a class="btn" href="https://forms.gle/ySAN9scVdrKiK14b9" target="_blank" rel="noopener"
+           data-ga-event="signup_click"
+           data-ga-course-id="terrain-2026-10"
+           data-ga-course-name="困難地形通過課程"
+           data-ga-location="card">
           <span>立即報名</span>
           <svg width="20" height="12" viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M0 6h18M13 1l5 5-5 5" /></svg>
         </a>
@@ -897,7 +939,11 @@
           <div class="spec-row"><span class="spec-key">人數</span><span class="spec-val">極限量小班制，限額 8 人</span></div>
           <div class="spec-row"><span class="spec-key">費用</span><span class="spec-val">NT$1,000</span></div>
         </div>
-        <a class="btn" href="https://forms.gle/T7KzQtEXwVeevw259" target="_blank" rel="noopener">
+        <a class="btn" href="https://forms.gle/T7KzQtEXwVeevw259" target="_blank" rel="noopener"
+           data-ga-event="signup_click"
+           data-ga-course-id="strength-2026-09"
+           data-ga-course-name="科學化肌力登山指南－交流體驗工作坊"
+           data-ga-location="card">
           <span>立即報名</span>
           <svg width="20" height="12" viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M0 6h18M13 1l5 5-5 5" /></svg>
         </a>
@@ -910,6 +956,8 @@
        ・區段編號請接續（05、06⋯），並同步更新導覽列
        ・報名中：card 不加 is-closed，用 chip-open + a.btn
        ・暫無場次：card 加 is-closed，用 chip-closed + p.btn-off
+       ・報名按鈕請一併填 data-ga-course-id／data-ga-course-name
+         （GA4 點擊追蹤，代號格式為「課程_年月」，詳見 docs/analytics.md）
   ════════════════════════════════════════════ -->
   <!--
   <section class="series shell" id="river">
@@ -941,7 +989,11 @@
           <div class="spec-row"><span class="spec-key">人數</span><span class="spec-val">限額 N 人</span></div>
           <div class="spec-row"><span class="spec-key">費用</span><span class="spec-val">NT$0</span></div>
         </div>
-        <a class="btn" href="https://forms.gle/" target="_blank" rel="noopener">
+        <a class="btn" href="https://forms.gle/" target="_blank" rel="noopener"
+           data-ga-event="signup_click"
+           data-ga-course-id="river-2026-01"
+           data-ga-course-name="溯溪基礎班"
+           data-ga-location="card">
           <span>立即報名</span>
           <svg width="20" height="12" viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M0 6h18M13 1l5 5-5 5" /></svg>
         </a>
@@ -962,8 +1014,10 @@
     <div class="footer-contact">
       <p class="key">聯絡 Contact</p>
       <p>
-        <a href="mailto:services@mtselfguide.com">services@mtselfguide.com</a><br />
-        <a href="https://www.facebook.com/profile.php?id=61577607467247" target="_blank" rel="noopener">Facebook 粉絲專頁 →</a>
+        <a href="mailto:services@mtselfguide.com"
+           data-ga-event="contact_click" data-ga-link-name="footer_email">services@mtselfguide.com</a><br />
+        <a href="https://www.facebook.com/profile.php?id=61577607467247" target="_blank" rel="noopener"
+           data-ga-event="outbound_click" data-ga-link-name="facebook_page">Facebook 粉絲專頁 →</a>
       </p>
     </div>
   </div>
@@ -973,6 +1027,122 @@
     </div>
   </div>
 </footer>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     GA4 事件追蹤：報名點擊、聯絡管道點擊、捲動深度、停留時間
+     不需修改此區塊；新增課程卡時只要在報名按鈕加上
+       data-ga-event="signup_click"
+       data-ga-course-id="課程代號"
+       data-ga-course-name="課程名稱"
+       data-ga-location="card"   （頂部看板則填 board）
+     即會自動被追蹤。說明見 docs/analytics.md
+  ════════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  // 尚未填入評估 ID 時完全不執行
+  if (!window.gaEnabled || typeof gtag !== 'function') return;
+
+  function send(name, params) {
+    try { gtag('event', name, params || {}); } catch (e) {}
+  }
+
+  /* ── 1. 點擊追蹤（事件委派，日後新增卡片自動生效）────────────────── */
+  document.addEventListener('click', function (e) {
+    var el = e.target && e.target.closest ? e.target.closest('[data-ga-event]') : null;
+    if (!el) return;
+
+    var name = el.getAttribute('data-ga-event');
+
+    if (name === 'signup_click') {
+      send('signup_click', {
+        course_id:      el.getAttribute('data-ga-course-id')   || '',
+        course_name:    el.getAttribute('data-ga-course-name') || '',
+        click_location: el.getAttribute('data-ga-location')    || '',
+        link_url:       el.href || ''
+      });
+    } else {
+      send(name, {
+        link_name: el.getAttribute('data-ga-link-name') || '',
+        link_url:  el.href || ''
+      });
+    }
+  }, true);
+
+  /* ── 2. 捲動深度：25 / 50 / 75 / 100% 各回報一次 ─────────────────── */
+  var marks = [25, 50, 75, 100];
+  var fired = {};
+  var ticking = false;
+
+  function checkScroll() {
+    ticking = false;
+    var doc = document.documentElement;
+    var scrollable = doc.scrollHeight - window.innerHeight;
+    var percent = scrollable > 0
+      ? Math.round(((window.scrollY || doc.scrollTop) / scrollable) * 100)
+      : 100;
+
+    for (var i = 0; i < marks.length; i++) {
+      if (percent >= marks[i] && !fired[marks[i]]) {
+        fired[marks[i]] = true;
+        send('scroll_depth', { percent_scrolled: marks[i] });
+      }
+    }
+    if (fired[100]) window.removeEventListener('scroll', onScroll);
+  }
+
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    setTimeout(checkScroll, 200);
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('load', checkScroll);   // 短頁面／一載入就見底
+
+  /* ── 3. 停留時間：只累計分頁在前景的秒數，背景掛著不計 ───────────── */
+  var thresholds = [15, 30, 60, 180, 300];
+  var idx = 0;
+  var engagedMs = 0;
+  var since = document.visibilityState === 'visible' ? Date.now() : null;
+  var timer = null;
+
+  function engagedSeconds() {
+    return Math.round((engagedMs + (since ? Date.now() - since : 0)) / 1000);
+  }
+
+  function tick() {
+    if (idx >= thresholds.length) return;
+    if (engagedSeconds() >= thresholds[idx]) {
+      send('time_on_page', { engaged_seconds: thresholds[idx] });
+      idx++;
+    }
+    schedule();
+  }
+
+  function schedule() {
+    clearTimeout(timer);
+    if (idx >= thresholds.length || !since) return;
+    var wait = (thresholds[idx] - engagedSeconds()) * 1000;
+    timer = setTimeout(tick, wait > 1000 ? wait : 1000);
+  }
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') {
+      since = Date.now();
+      schedule();
+    } else if (since) {
+      engagedMs += Date.now() - since;
+      since = null;
+      clearTimeout(timer);
+    }
+  });
+
+  schedule();
+})();
+</script>
 
 </body>
 </html>
