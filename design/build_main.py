@@ -115,7 +115,7 @@ C_INREACH = hcard(
 
 C_FIT = hcard(
   "card-fitness.jpg", "健身房內學員在教練指導下進行硬舉訓練", True,
-  "科學化肌力登山指南－交流體驗工作坊", "Strength & Conditioning",
+  "科學化肌力登山指南－交流體驗工作坊", "Strength &amp; Conditioning",
   "與璞實生活合辦，圍繞「能量系統與呼吸」、「核心肌力漸進負荷訓練」、「傷後恢復與強化」三大主軸。講師耀禾與肌力教練軒韋深度對談，並透過徒手操作與重訓器材檢測關節活動度、模擬登山動作，協助你調整發力習慣，把訓練成果帶上山。",
   [("日期", '<time datetime="2026-09-12T16:00">9 月 12 日（六）16:00–17:30</time>'),
    ("地點", "璞實生活<br />高雄市三民區九如一路 26 號"),
@@ -301,7 +301,7 @@ out = HTML % dict(
     sec3=section("comm-safety", "03", "Comms &amp; Safety", "登山通訊安全講座",
                  "山區通訊不斷線，讓每一次出發都多一層保障",
                  '    <div style="display: flex; flex-direction: column; gap: 24px;">\n%s    </div>\n' % C_INREACH),
-    sec4=section("fitness", "04", "Strength & Conditioning", "登山體能訓練",
+    sec4=section("fitness", "04", "Strength &amp; Conditioning", "登山體能訓練",
                  "用科學方法，鍛鍊帶你上山的身體",
                  '    <div style="display: flex; flex-direction: column; gap: 24px;">\n%s    </div>\n' % C_FIT),
 )
