@@ -2,6 +2,7 @@
 contours = open("contours.txt").read()
 
 INK="#15201A"; PAPER="#E8E2D4"; CARD="#F3EFE5"
+BAND="#3B4E40"; BAND_LINE="#55684F"
 RULE="#D6CDB8"; RULE2="#CDC4AE"; MUTED="#5A6353"; DIM="#7A8172"; SIG="#C2521C"
 
 ARROW = '<svg width="20" height="12" viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M0 6h18M13 1l5 5-5 5" /></svg>'
@@ -125,7 +126,7 @@ C_FIT = hcard(
 
 NAV_ITEMS = [("#hiking", "01 新手入門"), ("#terrain", "02 困難地形"),
              ("#comm-safety", "03 通訊安全"), ("#fitness", "04 體能訓練")]
-nav = "".join('        <a href="%s" style="padding: 8px 2px; font-size: 14px; font-weight: 500; color: #C9C7BC; border-bottom: 2px solid transparent;">%s</a>\n' % i for i in NAV_ITEMS)
+nav = "".join('        <a href="%s" style="padding: 8px 2px; font-size: 14px; font-weight: 500; color: #DAD8CB; border-bottom: 2px solid transparent;">%s</a>\n' % i for i in NAV_ITEMS)
 
 def board_row(date_big, date_small, title, meta, url):
     return '''        <a href="%(url)s" target="_blank" rel="noopener" style="display: flex; align-items: center; gap: 26px; padding: 22px 26px; background: %(CARD)s; border: 1px solid %(RULE)s; border-top: 3px solid %(SIG)s; color: %(INK)s;">
@@ -197,14 +198,14 @@ HTML = '''<!doctype html>
 
 <div style="display: flex; flex-direction: column; background: %(PAPER)s;">
 
-  <div style="background: %(INK)s; border-bottom: 1px solid #2C3A31;">
+  <div style="background: %(BAND)s; border-bottom: 1px solid %(BAND_LINE)s;">
     <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px; max-width: 1200px; margin: 0 auto; padding: 11px 60px;">
-      <span class="key" style="color: #8E9686;">Taiwan Mountain Self-Guide Association</span>
-      <span class="key" style="color: #8E9686;">services@mtselfguide.com</span>
+      <span class="key" style="color: #AAB29E;">Taiwan Mountain Self-Guide Association</span>
+      <span class="key" style="color: #AAB29E;">services@mtselfguide.com</span>
     </div>
   </div>
 
-  <nav aria-label="課程系列導覽" style="background: %(INK)s;">
+  <nav aria-label="課程系列導覽" style="background: %(BAND)s;">
     <div style="display: flex; align-items: center; gap: 34px; max-width: 1200px; margin: 0 auto; padding: 16px 60px 14px;">
       <a href="#top" style="display: flex; align-items: baseline; gap: 10px; margin-right: auto; color: #F3EFE5;">
         <span style="font-size: 17px; font-weight: 900; letter-spacing: .02em;">台灣自主登山能力推廣協會</span>
@@ -213,31 +214,31 @@ HTML = '''<!doctype html>
     </div>
   </nav>
 
-  <header id="top" style="position: relative; height: 588px; background: %(INK)s; overflow: hidden;">
+  <header id="top" style="position: relative; height: 588px; background: %(BAND)s; overflow: hidden;">
     <img src="og-cover.jpg" alt="登山者背著背包在高山池畔休息，遠方是雲霧繚繞的山巒" style="position: absolute; inset: 0; width: 100%%; height: 100%%; object-fit: cover; opacity: .5;" />
-    <div style="position: absolute; inset: 0; background: linear-gradient(94deg, rgba(21,32,26,.94) 0%%, rgba(21,32,26,.76) 46%%, rgba(21,32,26,.34) 100%%);"></div>
+    <div style="position: absolute; inset: 0; background: linear-gradient(94deg, rgba(59,78,64,.90) 0%%, rgba(59,78,64,.70) 46%%, rgba(59,78,64,.28) 100%%);"></div>
     <svg viewBox="0 0 1460 660" preserveAspectRatio="none" aria-hidden="true" style="position: absolute; inset: 0; width: 100%%; height: 100%%; fill: none; stroke: #E8E2D4; stroke-width: 1.1; opacity: .17;">
 %(contours)s
     </svg>
     <div style="position: relative; display: flex; flex-direction: column; justify-content: center; height: 100%%; max-width: 1200px; margin: 0 auto; padding: 0 60px;">
       <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 26px;">
         <span style="width: 46px; height: 2px; background: %(SIG)s;"></span>
-        <span class="key" style="color: #D9D3C4;">2026 課程總覽 ／ Course Catalogue</span>
+        <span class="key" style="color: #E4DFD1;">2026 課程總覽 ／ Course Catalogue</span>
       </div>
       <h1 style="max-width: 720px; font-size: 62px; font-weight: 900; line-height: 1.24; letter-spacing: -.03em; color: #F6F2E8;">安全走入山林，<br />從自主能力開始</h1>
-      <p style="max-width: 560px; margin-top: 24px; font-size: 17px; line-height: 2; color: #C6C6B8;">四個課程系列，從離線地圖、野營實戰、困難地形技術到體能訓練與山區通訊——把「依賴領隊」換成「自己判斷」。</p>
-      <div style="display: flex; gap: 40px; margin-top: 46px; padding-top: 26px; border-top: 1px solid rgba(232,226,212,.22); max-width: 640px;">
+      <p style="max-width: 560px; margin-top: 24px; font-size: 17px; line-height: 2; color: #D8D8CB;">四個課程系列，從離線地圖、野營實戰、困難地形技術到體能訓練與山區通訊——把「依賴領隊」換成「自己判斷」。</p>
+      <div style="display: flex; gap: 40px; margin-top: 46px; padding-top: 26px; border-top: 1px solid rgba(232,226,212,.28); max-width: 640px;">
         <div>
           <div class="mono" style="font-size: 32px; font-weight: 600; line-height: 1; color: %(SIG)s;">04</div>
-          <div class="key" style="margin-top: 6px; color: #9DA595;">課程系列</div>
+          <div class="key" style="margin-top: 6px; color: #B4BCA8;">課程系列</div>
         </div>
         <div>
           <div class="mono" style="font-size: 32px; font-weight: 600; line-height: 1; color: #F6F2E8;">05</div>
-          <div class="key" style="margin-top: 6px; color: #9DA595;">課程與講座</div>
+          <div class="key" style="margin-top: 6px; color: #B4BCA8;">課程與講座</div>
         </div>
         <div>
           <div class="mono" style="font-size: 32px; font-weight: 600; line-height: 1; color: #F6F2E8;">02</div>
-          <div class="key" style="margin-top: 6px; color: #9DA595;">現正開放報名</div>
+          <div class="key" style="margin-top: 6px; color: #B4BCA8;">現正開放報名</div>
         </div>
       </div>
     </div>
@@ -253,24 +254,24 @@ HTML = '''<!doctype html>
   </section>
 
 %(sec1)s%(quote)s%(sec2)s%(sec3)s%(sec4)s
-  <footer style="margin-top: 96px; background: %(INK)s; color: #C6C6B8;">
+  <footer style="margin-top: 96px; background: %(BAND)s; color: #D5D5C8;">
     <div style="display: flex; gap: 60px; max-width: 1200px; margin: 0 auto; padding: 56px 60px 44px;">
       <div style="flex-grow: 1;">
         <div style="font-size: 19px; font-weight: 900; color: #F6F2E8;">台灣自主登山能力推廣協會</div>
-        <div class="key" style="margin-top: 8px; color: #8E9686;">Taiwan Mountain Self-Guide Association</div>
+        <div class="key" style="margin-top: 8px; color: #AAB29E;">Taiwan Mountain Self-Guide Association</div>
         <p style="max-width: 420px; margin-top: 18px; font-size: 14px; line-height: 1.95;">探索戶外、走入山林，每一步都是收穫。</p>
       </div>
       <div style="flex-shrink: 0;">
-        <div class="key" style="color: #8E9686;">聯絡 Contact</div>
+        <div class="key" style="color: #AAB29E;">聯絡 Contact</div>
         <p style="margin-top: 12px; font-size: 15px; line-height: 2;">
           services@mtselfguide.com<br />
           <a href="https://www.facebook.com/profile.php?id=61577607467247" target="_blank" rel="noopener" style="color: #F6F2E8;">Facebook 粉絲專頁 →</a>
         </p>
       </div>
     </div>
-    <div style="border-top: 1px solid #2C3A31;">
+    <div style="border-top: 1px solid %(BAND_LINE)s;">
       <div style="max-width: 1200px; margin: 0 auto; padding: 16px 60px;">
-        <span class="key" style="color: #6F786A;">© 2026 台灣自主登山能力推廣協會</span>
+        <span class="key" style="color: #93997F;">© 2026 台灣自主登山能力推廣協會</span>
       </div>
     </div>
   </footer>
@@ -281,16 +282,16 @@ HTML = '''<!doctype html>
 </html>
 '''
 
-QUOTE = '''  <section style="margin-top: 78px; background: %(INK)s;">
+QUOTE = '''  <section style="margin-top: 78px; background: %(BAND)s;">
     <div style="max-width: 1200px; margin: 0 auto; padding: 62px 60px;">
-      <div class="key" style="margin-bottom: 20px; color: #8E9686;">課程理念 ／ Principle</div>
+      <div class="key" style="margin-bottom: 20px; color: #AAB29E;">課程理念 ／ Principle</div>
       <p style="max-width: 900px; font-size: 30px; font-weight: 700; line-height: 1.65; letter-spacing: -.01em; color: #F6F2E8;">「自主登山」不是什麼都帶，也不是什麼都不帶，<br />而是理解「需求 vs. 恐懼」的界線。</p>
     </div>
   </section>
-''' % dict(INK=INK)
+''' % dict(BAND=BAND)
 
 out = HTML % dict(
-    PAPER=PAPER, INK=INK, SIG=SIG, DIM=DIM, RULE=RULE, RULE2=RULE2,
+    PAPER=PAPER, INK=INK, BAND=BAND, BAND_LINE=BAND_LINE, SIG=SIG, DIM=DIM, RULE=RULE, RULE2=RULE2,
     contours=contours, nav=nav, board=board, quote=QUOTE,
     sec1=section("hiking", "01", "Fundamentals", "給登山新手入門課",
                  "從基礎技能到野外過夜，循序漸進走向山林",

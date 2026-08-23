@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 contours = open("contours.txt").read()
 INK="#15201A"; PAPER="#E8E2D4"; CARD="#F3EFE5"
+BAND="#3B4E40"; BAND_LINE="#55684F"
 RULE="#D6CDB8"; RULE2="#CDC4AE"; MUTED="#5A6353"; DIM="#7A8172"; SIG="#C2521C"
 ARROW = '<svg width="18" height="11" viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M0 6h18M13 1l5 5-5 5" /></svg>'
 
@@ -137,24 +138,24 @@ HTML = '''<!doctype html>
 
 <div style="display: flex; flex-direction: column; width: 390px; background: %(PAPER)s;">
 
-  <nav style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 20px; background: %(INK)s;">
+  <nav style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 20px; background: %(BAND)s;">
     <span style="font-size: 14.5px; font-weight: 900; color: #F3EFE5;">台灣自主登山能力推廣協會</span>
     <span class="mono" style="flex-shrink: 0; padding: 4px 8px; background: %(SIG)s; color: #F6F2E8; font-size: 11px; font-weight: 600;">2 門</span>
   </nav>
 
-  <header style="position: relative; height: 418px; background: %(INK)s; overflow: hidden;">
+  <header style="position: relative; height: 418px; background: %(BAND)s; overflow: hidden;">
     <img src="og-cover.jpg" alt="登山者背著背包在高山池畔休息，遠方是雲霧繚繞的山巒" style="position: absolute; inset: 0; width: 100%%; height: 100%%; object-fit: cover; opacity: .5;" />
-    <div style="position: absolute; inset: 0; background: linear-gradient(6deg, rgba(21,32,26,.95) 12%%, rgba(21,32,26,.62) 100%%);"></div>
+    <div style="position: absolute; inset: 0; background: linear-gradient(6deg, rgba(59,78,64,.93) 12%%, rgba(59,78,64,.55) 100%%);"></div>
     <svg viewBox="360 0 740 660" preserveAspectRatio="none" aria-hidden="true" style="position: absolute; inset: 0; width: 100%%; height: 100%%; fill: none; stroke: #E8E2D4; stroke-width: 1.6; opacity: .15;">
 %(contours)s
     </svg>
     <div style="position: relative; display: flex; flex-direction: column; justify-content: flex-end; height: 100%%; padding: 0 20px 26px;">
       <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 18px;">
         <span style="width: 30px; height: 2px; background: %(SIG)s;"></span>
-        <span class="key" style="color: #D9D3C4;">2026 課程總覽</span>
+        <span class="key" style="color: #E4DFD1;">2026 課程總覽</span>
       </div>
       <h1 style="font-size: 36px; font-weight: 900; line-height: 1.32; letter-spacing: -.03em; color: #F6F2E8;">安全走入山林，<br />從自主能力開始</h1>
-      <p style="margin-top: 16px; font-size: 14.5px; line-height: 1.95; color: #C6C6B8;">四個課程系列，從離線地圖、野營實戰、困難地形技術到體能訓練與山區通訊——把「依賴領隊」換成「自己判斷」。</p>
+      <p style="margin-top: 16px; font-size: 14.5px; line-height: 1.95; color: #D8D8CB;">四個課程系列，從離線地圖、野營實戰、困難地形技術到體能訓練與山區通訊——把「依賴領隊」換成「自己判斷」。</p>
     </div>
   </header>
 
@@ -168,14 +169,14 @@ HTML = '''<!doctype html>
   </section>
 
 %(sec1)s%(quote)s%(sec2)s%(sec3)s%(sec4)s
-  <footer style="margin-top: 60px; padding: 40px 20px 28px; background: %(INK)s; color: #C6C6B8;">
+  <footer style="margin-top: 60px; padding: 40px 20px 28px; background: %(BAND)s; color: #D5D5C8;">
     <div style="font-size: 16px; font-weight: 900; color: #F6F2E8;">台灣自主登山能力推廣協會</div>
-    <div class="key" style="margin-top: 6px; color: #8E9686;">Taiwan Mountain Self-Guide Association</div>
+    <div class="key" style="margin-top: 6px; color: #AAB29E;">Taiwan Mountain Self-Guide Association</div>
     <p style="margin-top: 16px; font-size: 14px; line-height: 2;">
       services@mtselfguide.com<br />
       <a href="https://www.facebook.com/profile.php?id=61577607467247" target="_blank" rel="noopener" style="color: #F6F2E8;">Facebook 粉絲專頁 →</a>
     </p>
-    <div class="key" style="margin-top: 26px; padding-top: 16px; border-top: 1px solid #2C3A31; color: #6F786A;">© 2026 台灣自主登山能力推廣協會</div>
+    <div class="key" style="margin-top: 26px; padding-top: 16px; border-top: 1px solid %(BAND_LINE)s; color: #93997F;">© 2026 台灣自主登山能力推廣協會</div>
   </footer>
 
 </div>
@@ -184,14 +185,14 @@ HTML = '''<!doctype html>
 </html>
 '''
 
-QUOTE = '''  <section style="margin-top: 52px; padding: 40px 20px; background: %(INK)s;">
-    <div class="key" style="margin-bottom: 14px; color: #8E9686;">課程理念</div>
+QUOTE = '''  <section style="margin-top: 52px; padding: 40px 20px; background: %(BAND)s;">
+    <div class="key" style="margin-bottom: 14px; color: #AAB29E;">課程理念</div>
     <p style="font-size: 21px; font-weight: 700; line-height: 1.75; letter-spacing: -.01em; color: #F6F2E8;">「自主登山」不是什麼都帶，也不是什麼都不帶，而是理解「需求 vs. 恐懼」的界線。</p>
   </section>
-''' % dict(INK=INK)
+''' % dict(BAND=BAND, BAND_LINE=BAND_LINE)
 
 out = HTML % dict(
-    PAPER=PAPER, INK=INK, SIG=SIG, DIM=DIM, RULE=RULE, RULE2=RULE2,
+    PAPER=PAPER, INK=INK, BAND=BAND, BAND_LINE=BAND_LINE, SIG=SIG, DIM=DIM, RULE=RULE, RULE2=RULE2,
     contours=contours, board=board, quote=QUOTE,
     sec1=section("hiking", "01", "Fundamentals", "給登山新手入門課", "從基礎技能到野外過夜，循序漸進走向山林", C_MAP + C_CAMP),
     sec2=section("terrain", "02", "Technical Terrain", "困難地形通過技術", "繩索、渡溪與團隊協作，學會判斷該通過還是該撤退", C_TERRAIN),
