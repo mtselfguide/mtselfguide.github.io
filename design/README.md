@@ -11,6 +11,8 @@ Claude Design 畫布的來源檔。每個 `.dc.html` 是畫布上的一張畫板
 | `canvas.json` | 畫布版面配置與分頁 |
 | `assets-min/` | 站上照片壓縮後版本（每張 < 64 KB） |
 | `build_main.py` `build_mobile.py` | 產生上述兩份頁面的樣板腳本 |
+| `compress_images.py` | 產生 `assets-min/`（畫布用，會縮到 620–700px） |
+| `optimize_site_assets.py` | 就地重新編碼 `assets/` 的課程卡照片（正式站用，不縮尺寸） |
 | `contours.txt` | 首屏等高線 SVG path |
 
 ## 重新產生與更新
@@ -45,5 +47,7 @@ node "<design skill base dir>/seed-canvas.mjs" \
   橘底文字改純白、看板「報名」改深橘 `#94400f`、深底上的橘色數字改 `#ee9450`，
   全站文字對比皆達 WCAG AA
 - 新增平板／窄螢幕的中間斷點行為
+- 課程卡格線改用 `auto-fit`：卡片數少於欄數時撐滿整列（原本 `auto-fill`
+  會在系列一右側留下一個空欄）
 
 要看目前實際樣貌，請以 `index.html` 為準；本目錄保留的是方向定案時的設計稿。

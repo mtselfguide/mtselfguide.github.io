@@ -367,9 +367,10 @@
     .series { padding-top: 78px; scroll-margin-top: 68px; }
     @media (max-width: 900px) { .series { padding-top: 52px; } }
 
+    /* auto-fit：卡片數少於欄數時撐滿整列，不留空欄 */
     .cards {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 24px;
     }
     .card {
