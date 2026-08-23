@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>登山課程報名 | 台灣自主登山能力推廣協會</title>
-  <meta name="description" content="台灣自主登山能力推廣協會課程：困難地形通過課程（2026/10/3–4 高雄茂林）、手機離線地圖教學、兩天一夜野營實戰、Garmin inReach 通訊安全講座、科學化肌力登山工作坊。安全走入山林，從自主能力開始。" />
+  <meta name="description" content="台灣自主登山能力推廣協會課程報名：科學化肌力登山指南工作坊（9/12 高雄）、困難地形通過課程（10/3–4 高雄茂林）熱烈報名中，另有手機離線地圖教學、兩天一夜野營實戰、Garmin inReach 通訊安全講座。安全走入山林，從自主能力開始。" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://mtselfguide.com/" />
 
   <!-- Open Graph（Facebook 分享預覽） -->
   <meta property="og:title" content="登山課程報名 | 台灣自主登山能力推廣協會" />
-  <meta property="og:description" content="困難地形通過課程 10/3–4 高雄茂林開課：學習觀察環境、判斷風險，運用繩索、團隊協作與渡溪技巧，更重要的是知道什麼時候該撤退。" />
+  <meta property="og:description" content="科學化肌力登山指南工作坊 9/12 高雄璞實生活開課，困難地形通過課程 10/3–4 高雄茂林開課——從體能訓練到地形技術與風險判斷，兩門課程限額報名中！" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://mtselfguide.com/" />
   <meta property="og:locale" content="zh_TW" />
@@ -425,11 +425,34 @@
         "provider": { "@id": "https://mtselfguide.com/#organization" }
       },
       {
-        "@type": "Course",
+        "@type": "EducationEvent",
         "name": "科學化肌力登山指南－交流體驗工作坊",
-        "description": "與璞實生活合辦，涵蓋能量系統與呼吸、核心肌力漸進負荷訓練、傷後恢復與強化三大主軸，透過徒手操作與重訓器材檢測關節活動度、模擬登山動作，協助調整發力習慣。目前暫無場次，敬請關注最新開課消息。",
+        "description": "與璞實生活合辦，涵蓋能量系統與呼吸、核心肌力漸進負荷訓練、傷後恢復與強化三大主軸，透過徒手操作與重訓器材檢測關節活動度、模擬登山動作，協助調整發力習慣。",
         "image": "https://mtselfguide.com/assets/card-fitness.jpg",
-        "provider": { "@id": "https://mtselfguide.com/#organization" }
+        "url": "https://mtselfguide.com/#fitness",
+        "organizer": { "@id": "https://mtselfguide.com/#organization" },
+        "performer": [
+          { "@type": "Person", "name": "耀禾" },
+          { "@type": "Person", "name": "軒韋" }
+        ],
+        "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+        "eventStatus": "https://schema.org/EventScheduled",
+        "startDate": "2026-09-12T16:00:00+08:00",
+        "endDate": "2026-09-12T17:30:00+08:00",
+        "maximumAttendeeCapacity": 8,
+        "location": {
+          "@type": "Place",
+          "name": "璞實生活",
+          "address": { "@type": "PostalAddress", "streetAddress": "九如一路26號", "addressLocality": "高雄市三民區", "addressCountry": "TW" }
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "1000",
+          "priceCurrency": "TWD",
+          "url": "https://forms.gle/T7KzQtEXwVeevw259",
+          "validFrom": "2026-08-23T00:00:00+08:00",
+          "availability": "https://schema.org/InStock"
+        }
       }
     ]
   }
@@ -624,16 +647,16 @@
 
     <div class="cards">
 
-      <!-- 工作坊卡：科學化肌力登山指南（目前暫無場次） -->
+      <!-- 工作坊卡：科學化肌力登山指南 -->
       <article class="card">
-        <div class="card-banner closed"></div>
+        <div class="card-banner open"></div>
         <figure class="card-img">
           <img src="assets/card-fitness.jpg" alt="健身房內學員在教練指導下進行硬舉訓練" loading="lazy" />
         </figure>
         <div class="card-body">
           <div class="card-top">
             <h3 class="card-title">科學化肌力登山指南－交流體驗工作坊</h3>
-            <span class="badge closed">暫無場次</span>
+            <span class="badge open">報名中</span>
           </div>
           <p class="card-desc">
             與璞實生活合辦，圍繞「能量系統與呼吸」、「核心肌力漸進負荷訓練」、「傷後恢復與強化」三大主軸。
@@ -641,10 +664,16 @@
             協助你調整發力習慣，把訓練成果帶上山。
           </p>
           <ul class="meta-list">
-            <li><span class="icon">📅</span><span>下一場開課時間規劃中，敬請關注粉絲專頁</span></li>
-            <li><span class="icon">👥</span><span>極限量小班制，限額 8 人</span></li>
+            <li><span class="icon">📅</span><time datetime="2026-09-12T16:00">9 月 12 日（六）16:00–17:30</time></li>
+            <li><span class="icon">📍</span><span>璞實生活（高雄市三民區九如一路 26 號）</span></li>
+            <li><span class="icon">💰</span><span>費用 $1,000</span></li>
+            <li><span class="icon">👥</span><span>極限量小班制，限額 8 人，額滿即關閉報名</span></li>
           </ul>
-          <span class="btn disabled">目前無場次，敬請期待</span>
+          <a class="btn primary"
+             href="https://forms.gle/T7KzQtEXwVeevw259"
+             target="_blank" rel="noopener">
+            立即報名 →
+          </a>
         </div>
       </article>
 
