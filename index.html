@@ -525,6 +525,95 @@
       text-align: center;
     }
 
+    /* ── 課程許願牆 ── */
+    .wish-board {
+      padding: 30px 32px 24px;
+      background: var(--card);
+      border: 1px solid var(--rule);
+    }
+    .wish-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 8px 14px;
+      min-height: 96px;
+    }
+    /* 字級由票數決定：JS 寫入 --wish-size（無單位數字） */
+    .wish-item {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 7px;
+      padding: 3px 9px 5px;
+      background: none;
+      border: 1px solid transparent;
+      color: var(--ink);
+      font-family: inherit;
+      font-size: calc(var(--wish-size, 20) * 1px);
+      font-weight: 700;
+      line-height: 1.3;
+      letter-spacing: -.01em;
+      cursor: pointer;
+      transition: color .15s, background .15s, border-color .15s;
+    }
+    .wish-item:hover { background: var(--paper); border-color: var(--rule-soft); color: var(--signal); }
+    .wish-item:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+    .wish-n {
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--dim);
+    }
+    .wish-item:hover .wish-n { color: var(--signal); }
+    .wish-item.is-voted { color: var(--signal); cursor: default; }
+    .wish-item.is-voted .wish-n { color: var(--signal); }
+    .wish-item.is-voted:hover { background: none; border-color: transparent; }
+    .wish-item.is-new { animation: wish-pop .45s ease-out; }
+    @keyframes wish-pop { from { opacity: 0; transform: translateY(5px); } }
+
+    .wish-status {
+      margin-top: 20px;
+      padding-top: 14px;
+      border-top: 1px solid var(--rule);
+      font-size: 12px;
+      letter-spacing: .06em;
+      color: var(--dim);
+    }
+    .wish-form { margin-top: 26px; }
+    .wish-row { display: flex; gap: 12px; margin-top: 10px; }
+    .wish-input {
+      flex-grow: 1;
+      min-width: 0;
+      padding: 15px 16px;
+      background: var(--card);
+      border: 1px solid var(--rule-soft);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 15.5px;
+    }
+    .wish-input::placeholder { color: #8b9184; }
+    .wish-input:focus { outline: none; border-color: var(--signal); }
+    .wish-send {
+      flex-shrink: 0;
+      margin-top: 0;
+      padding: 15px 24px;
+      border: 0;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .wish-send[disabled], .wish-send[disabled]:hover {
+      background: var(--rule-soft);
+      color: var(--card);
+      cursor: default;
+    }
+    .wish-hint { margin-top: 10px; font-size: 13px; line-height: 1.7; color: var(--muted); }
+    .wish-hint.is-error { color: var(--signal-dark); font-weight: 500; }
+    @media (max-width: 620px) {
+      .wish-board { padding: 22px 20px 18px; }
+      .wish-item { font-size: calc(var(--wish-size, 20) * .78px); }
+      .wish-row { flex-direction: column; }
+      .wish-send { justify-content: center; }
+    }
+
     /* ── 課程理念引言帶 ── */
     .quote { margin-top: 78px; background: var(--band); }
     .quote .shell { padding-top: 62px; padding-bottom: 62px; }
@@ -681,6 +770,7 @@
     <a class="nav-link" href="#terrain">02 困難地形</a>
     <a class="nav-link" href="#comm-safety">03 通訊安全</a>
     <a class="nav-link" href="#fitness">04 體能訓練</a>
+    <a class="nav-link" id="wish-nav" href="#wishlist" hidden>課程許願牆</a>
     <span class="mono nav-count">2 門開放報名</span>
   </div>
 </nav>
@@ -1002,6 +1092,43 @@
   </section>
   -->
 
+  <!-- ═══════════════════════════════════════════
+       課程許願牆
+       資料存在 Google 試算表，透過 Apps Script 讀寫（apps-script/wishlist.gs）。
+       頁面底部的 WISHLIST_API 沒填網址時，這一區與導覽列連結都維持隱藏。
+       部署步驟見 docs/wishlist.md
+  ════════════════════════════════════════════ -->
+  <section class="series shell" id="wishlist" hidden>
+    <div class="section-head">
+      <span class="section-num">+1</span>
+      <div>
+        <p class="key">Course Wishlist</p>
+        <h2>課程許願牆</h2>
+      </div>
+      <p class="section-sub">想上什麼課？點一下就是敲碗。敲得越多字越大，我們照這個順序排開課。</p>
+    </div>
+
+    <div class="wish-board">
+      <div class="wish-cloud" id="wish-cloud" role="group" aria-busy="true"
+           aria-label="課程許願清單，點擊項目可以加一票"></div>
+      <p class="wish-status mono" id="wish-status" role="status">載入中⋯</p>
+    </div>
+
+    <form class="wish-form" id="wish-form" novalidate>
+      <label class="key" for="wish-input">沒看到想上的課？自己加一個</label>
+      <div class="wish-row">
+        <input class="wish-input" id="wish-input" type="text" name="wish"
+               maxlength="30" autocomplete="off" enterkeyhint="send"
+               placeholder="例如：野外急救 WFA、雪地行進" />
+        <button class="btn wish-send" id="wish-send" type="submit">
+          <span>許願</span>
+          <svg width="20" height="12" viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M0 6h18M13 1l5 5-5 5" /></svg>
+        </button>
+      </div>
+      <p class="wish-hint" id="wish-hint">不用留姓名或 email，送出後立刻出現在上面。</p>
+    </form>
+  </section>
+
 </main>
 
 <footer>
@@ -1141,6 +1268,322 @@
   });
 
   schedule();
+})();
+</script>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     課程許願牆：讀寫 Google 試算表（後端程式碼在 apps-script/wishlist.gs）
+     設定：把下面 WISHLIST_API 換成 Apps Script 部署後的「網頁應用程式」網址
+     格式：https://script.google.com/macros/s/AKfyc…/exec
+     說明文件：docs/wishlist.md
+     ※ 沒填網址時許願牆整區隱藏，網站維持原樣、不發任何請求。
+  ════════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  // ↓↓↓ 只需要改這一行 ↓↓↓
+  var WISHLIST_API = '';
+  // ↑↑↑ 只需要改這一行 ↑↑↑
+
+  var section = document.getElementById('wishlist');
+  var navLink = document.getElementById('wish-nav');
+  if (!section) return;
+  if (!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec/.test(WISHLIST_API)) return;
+
+  section.hidden = false;
+  if (navLink) navLink.hidden = false;
+
+  var cloud  = document.getElementById('wish-cloud');
+  var status = document.getElementById('wish-status');
+  var form   = document.getElementById('wish-form');
+  var input  = document.getElementById('wish-input');
+  var send   = document.getElementById('wish-send');
+  var hint   = document.getElementById('wish-hint');
+
+  var MIN_PX  = 16;      // 票數最低者的字級
+  var MAX_PX  = 46;      // 票數最高者的字級
+  var POLL_MS = 45000;   // 許願牆在畫面上時，每 45 秒抓一次最新票數
+
+  var TOKEN_KEY = 'mtsg_wish_token';
+  var VOTED_KEY = 'mtsg_wish_voted';
+
+  var ERRORS = {
+    duplicate_vote: '你已經敲過這個碗了，換一個吧。',
+    rate_limited:   '今天敲得夠多了，明天再來。',
+    too_short:      '課程名稱至少 2 個字。',
+    too_long:       '課程名稱最多 30 個字。',
+    blocked:        '這個名稱沒辦法送出，換個說法試試。',
+    not_found:      '這筆許願剛剛被移除了。',
+    busy:           '現在有點忙，等幾秒再試一次。',
+    not_setup:      '許願牆還在設定中，稍後再來。'
+  };
+
+  var items     = [];
+  var signature = '';    // 目前畫面上的內容指紋，一樣就不重畫
+  var busy      = false;
+  var loaded    = false;
+  var inView    = false;
+  var timer     = null;
+
+  /* ── localStorage：無痕視窗或封鎖 cookie 時會丟例外，一律包起來 ── */
+
+  function readStore(key) {
+    try { return localStorage.getItem(key); } catch (e) { return null; }
+  }
+  function writeStore(key, value) {
+    try { localStorage.setItem(key, value); } catch (e) {}
+  }
+
+  var cachedToken = '';
+  function visitorToken() {
+    if (cachedToken) return cachedToken;
+    cachedToken = readStore(TOKEN_KEY) || '';
+    if (!cachedToken) {
+      cachedToken = (window.crypto && crypto.randomUUID)
+        ? crypto.randomUUID().replace(/-/g, '')
+        : 'v' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+      writeStore(TOKEN_KEY, cachedToken);
+    }
+    return cachedToken;
+  }
+
+  var votedMap = null;
+  function voted() {
+    if (votedMap) return votedMap;
+    votedMap = {};
+    try {
+      var list = JSON.parse(readStore(VOTED_KEY) || '[]');
+      if (Object.prototype.toString.call(list) === '[object Array]') {
+        list.forEach(function (id) { votedMap[id] = true; });
+      }
+    } catch (e) {}
+    return votedMap;
+  }
+  function markVoted(id, on) {
+    var map = voted();
+    if (on) map[id] = true; else delete map[id];
+    var out = [];
+    for (var k in map) { if (map.hasOwnProperty(k)) out.push(k); }
+    writeStore(VOTED_KEY, JSON.stringify(out));
+  }
+
+  /* ── 呼叫 Apps Script ──────────────────────────────────────────
+     POST 用 text/plain：這是「簡單請求」，不會觸發 CORS 預檢，
+     而 Apps Script 不會回應 OPTIONS，用 application/json 會失敗。   */
+
+  function api(payload) {
+    var options = payload
+      ? { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) }
+      : { method: 'GET' };
+
+    return fetch(WISHLIST_API, options)
+      .then(function (res) {
+        if (!res.ok) throw new Error('http_' + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        if (!data || data.ok !== true) throw new Error((data && data.error) || 'server_error');
+        return data;
+      });
+  }
+
+  function errorText(err) {
+    return ERRORS[err && err.message] || '連線失敗，請稍後再試一次。';
+  }
+
+  function say(text, isError) {
+    hint.textContent = text;
+    hint.className = 'wish-hint' + (isError ? ' is-error' : '');
+  }
+
+  function track(name, params) {
+    if (!window.gaEnabled || typeof gtag !== 'function') return;
+    try { gtag('event', name, params || {}); } catch (e) {}
+  }
+
+  /* ── 畫面 ─────────────────────────────────────────────────── */
+
+  // 開平方根讓票數少的項目不會小到看不見，票數多的也不會爆版
+  function fontSize(votes, min, max) {
+    if (max <= min) return Math.round((MIN_PX + MAX_PX) / 2);
+    return Math.round(MIN_PX + (MAX_PX - MIN_PX) * Math.sqrt((votes - min) / (max - min)));
+  }
+
+  function render() {
+    var sig = items.map(function (w) { return w.id + ':' + w.votes; }).join(',');
+    if (sig === signature) return;
+    signature = sig;
+
+    var active = document.activeElement;
+    var focusId = (active && active.className && String(active.className).indexOf('wish-item') !== -1)
+      ? active.getAttribute('data-id') : '';
+
+    cloud.textContent = '';
+    cloud.setAttribute('aria-busy', 'false');
+
+    if (!items.length) {
+      status.textContent = '還沒有人許願，你可以當第一個。';
+      return;
+    }
+
+    var counts = items.map(function (w) { return w.votes; });
+    var max = Math.max.apply(null, counts);
+    var min = Math.min.apply(null, counts);
+    var map = voted();
+    var total = 0;
+
+    items.forEach(function (w) {
+      total += w.votes;
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'wish-item' + (map[w.id] ? ' is-voted' : '');
+      btn.setAttribute('data-id', w.id);
+      btn.style.setProperty('--wish-size', String(fontSize(w.votes, min, max)));
+      btn.setAttribute('aria-pressed', map[w.id] ? 'true' : 'false');
+      btn.setAttribute('aria-label',
+        w.name + '，目前 ' + w.votes + ' 票' + (map[w.id] ? '，你已經敲過了' : '，點一下加一'));
+
+      // 用 textContent 放課程名稱：訪客輸入的內容不會被當成 HTML 解析
+      var label = document.createElement('span');
+      label.textContent = w.name;
+      var num = document.createElement('span');
+      num.className = 'wish-n';
+      num.textContent = String(w.votes);
+
+      btn.appendChild(label);
+      btn.appendChild(num);
+      cloud.appendChild(btn);
+
+      if (w.id && w.id === focusId) btn.focus();
+    });
+
+    status.textContent = items.length + ' 個許願 ・ 累計 ' + total + ' 次敲碗';
+  }
+
+  function highlight(id) {
+    if (!id) return;
+    var btn = cloud.querySelector('[data-id="' + String(id).replace(/"/g, '') + '"]');
+    if (btn) btn.className += ' is-new';
+  }
+
+  /* ── 讀取與輪詢 ───────────────────────────────────────────── */
+
+  function load(quiet) {
+    if (!quiet) status.textContent = '載入中⋯';
+    return api(null).then(function (data) {
+      items = data.items || [];
+      loaded = true;
+      render();
+    }).catch(function () {
+      if (quiet && loaded) return;   // 背景輪詢失敗就安靜跳過，不打斷正在看的人
+      cloud.setAttribute('aria-busy', 'false');
+      status.textContent = '許願牆讀取失敗，請重新整理頁面。';
+    });
+  }
+
+  function schedule() {
+    clearTimeout(timer);
+    if (!inView || document.visibilityState !== 'visible') return;
+    timer = setTimeout(function () { load(true).then(schedule, schedule); }, POLL_MS);
+  }
+
+  /* ── 互動 ─────────────────────────────────────────────────── */
+
+  function vote(id, name, btn) {
+    if (busy) return;
+    busy = true;
+
+    // 樂觀更新：先給回饋，失敗再退回
+    markVoted(id, true);
+    btn.className += ' is-voted';
+    btn.setAttribute('aria-pressed', 'true');
+    var num = btn.querySelector('.wish-n');
+    var before = num ? Number(num.textContent) || 0 : 0;
+    if (num) num.textContent = String(before + 1);
+
+    api({ action: 'vote', id: id, token: visitorToken() }).then(function (data) {
+      items = data.items || items;
+      render();
+      say('已加一，謝謝你的敲碗。');
+      track('wish_vote', { wish_id: id, wish_name: name });
+    }).catch(function (err) {
+      markVoted(id, false);
+      if (num) num.textContent = String(before);
+      say(errorText(err), true);
+      signature = '';
+      load(true);
+    }).then(function () {
+      busy = false;
+    });
+  }
+
+  cloud.addEventListener('click', function (e) {
+    var el = e.target;
+    while (el && el !== cloud && !(el.className && String(el.className).indexOf('wish-item') !== -1)) {
+      el = el.parentNode;
+    }
+    if (!el || el === cloud) return;
+
+    var id = el.getAttribute('data-id');
+    if (!id) return;
+    if (voted()[id]) { say('你已經敲過這個碗了，換一個吧。'); return; }
+
+    var label = el.querySelector('span');
+    vote(id, label ? label.textContent : '', el);
+  });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (busy) return;
+
+    var name = (input.value || '').replace(/\s+/g, ' ').trim();
+    if (name.replace(/\s/g, '').length < 2) {
+      say('課程名稱至少 2 個字。', true);
+      input.focus();
+      return;
+    }
+
+    busy = true;
+    send.disabled = true;
+    say('送出中⋯');
+
+    api({ action: 'add', name: name, token: visitorToken() }).then(function (data) {
+      items = data.items || items;
+      if (data.id) markVoted(data.id, true);
+      render();
+      highlight(data.id);
+      input.value = '';
+
+      if (data.pending)      say('收到了，我們看過之後就會放上牆。');
+      else if (data.created) say('許願成功，已經放上牆了。');
+      else                   say('這門課已經在牆上，幫你加了一票。');
+
+      track(data.created ? 'wish_add' : 'wish_vote', { wish_name: name });
+    }).catch(function (err) {
+      say(errorText(err), true);
+    }).then(function () {
+      busy = false;
+      send.disabled = false;
+    });
+  });
+
+  /* ── 捲到許願牆才第一次載入，離開畫面就停止輪詢（省 Apps Script 配額）── */
+
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      inView = entries[0].isIntersecting;
+      if (inView && !loaded) load(false).then(schedule, schedule);
+      else schedule();
+    }, { rootMargin: '200px' }).observe(section);
+  } else {
+    inView = true;
+    load(false).then(schedule, schedule);
+  }
+
+  document.addEventListener('visibilitychange', schedule);
 })();
 </script>
 
