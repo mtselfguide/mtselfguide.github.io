@@ -34,6 +34,7 @@ GA4 預設只統計事件「總次數」，不會自動拆分事件參數。
 | 連結名稱 | `link_name` | `facebook_page`、`topbar_email`、`footer_email` |
 | 捲動百分比 | `percent_scrolled` | 25 / 50 / 75 / 100 |
 | 停留秒數 | `engaged_seconds` | 15 / 30 / 60 / 180 / 300 |
+| 許願課名 | `wish_name` | 許願牆上被新增或被敲碗的課程名稱 |
 
 > ⚠️ 自訂維度**只對建立之後**收到的資料生效，不會回溯，所以請在上線當天就建好。
 
@@ -53,6 +54,8 @@ GA4 預設只統計事件「總次數」，不會自動拆分事件參數。
 | `outbound_click` | 點擊頁尾 Facebook 粉專連結 | `link_name`、`link_url` |
 | `scroll_depth` | 捲動到 25% / 50% / 75% / 100%（每個里程碑一次） | `percent_scrolled` |
 | `time_on_page` | 停留滿 15 / 30 / 60 / 180 / 300 秒 | `engaged_seconds` |
+| `wish_add` | 在課程許願牆新增一門課 | `wish_name` |
+| `wish_vote` | 對許願牆上既有的課按 +1 | `wish_id`、`wish_name` |
 
 目前已掛上追蹤的報名按鈕：
 
@@ -164,5 +167,7 @@ data-ga-event="outbound_click" data-ga-link-name="instagram"
   因此 GA4 的數字通常**略低於**實際流量，這是正常現象。
 - 報名表單在 Google 表單上，GA4 只能追蹤到「點擊了報名按鈕」，
   無法得知是否真的完成填寫。想比對轉換率，請用表單的回應數對照 `signup_click` 次數。
+- 課程許願牆的 `wish_add` / `wish_vote` 只送出課程名稱，不含任何訪客資訊；
+  許願牆本身的資料存在 Google 試算表，設定方式見 [wishlist.md](wishlist.md)。
 - 若要暫時關閉追蹤，把 `index.html` 裡的 `GA_MEASUREMENT_ID` 改回
   `'G-XXXXXXXXXX'` 即可，追蹤碼會自動停用，網站功能不受影響。
