@@ -16,7 +16,7 @@ from PIL import Image, ImageOps
 
 QUALITY = 78
 MIN_SAVING = 0.10   # 少於一成的差距不值得動二進位檔
-FILES = ["card-offline-map.jpg", "card-camping.jpg", "card-terrain.jpg",
+FILES = ["card-offline-map.jpg", "card-camping.jpg", "card-camp-setup.jpg", "card-terrain.jpg",
          "card-inreach.jpg", "card-fitness.jpg"]
 
 total_before = total_after = 0
