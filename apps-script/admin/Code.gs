@@ -10,6 +10,7 @@
  *   onOpen()              → 試算表上方的「協會後台」選單（寄信項目由 notify.gs 加入）
  *   doGet()               → 報名與收費總覽網頁（Overview.html）
  *   getOverview()         → 給總覽網頁用的資料（先同步、再加總）
+ *   assertAdmin_()        → 不在「管理員」名單就丟錯（notify.gs 也會呼叫）
  *
  * 各課程的表單回覆試算表一律只讀不寫。
  * 同步時只會「新增報名者」和「更新姓名、Email、帳號後五碼」，
@@ -20,12 +21,11 @@
    設定區：要調整的都在這裡
    ══════════════════════════════════════════════════════════════════ */
 
-/**
- * 可以打開總覽網頁的管理員 Email（小寫、完整信箱）。
- * 留空陣列 = 只有部署這支程式的帳號本人能看。
- * 例：['admin@mtselfguide.com', 'treasurer@mtselfguide.com']
+/*
+ * 可以打開總覽網頁的管理員，寫在「報名後台」試算表的「管理員」工作表 A 欄（一列一個 Email）。
+ * 名單不放在程式碼裡，因為這個 repo 是公開的。改名單不用重新部署。
+ * 部署這支程式的帳號本人永遠可以看。
  */
-var ADMIN_EMAILS = [];
 
 /** 開課前幾天內還有人沒繳費，就在卡片上提醒。 */
 var UNPAID_WARN_DAYS = 7;
@@ -36,6 +36,7 @@ var UNPAID_WARN_DAYS = 7;
 
 var SHEET_EVENTS   = '活動設定';
 var SHEET_PAYMENTS = '繳費狀態';
+var SHEET_ADMINS   = '管理員';
 
 var EVENT_HEADERS = [
   '活動ID', '活動名稱', '活動日期', '費用',
@@ -44,6 +45,8 @@ var EVENT_HEADERS = [
   '名額', '行前通知主旨', '行前通知內文', '行前通知寄出時間', '狀態',
   '成團人數', '報名截止', '方案欄', '方案價格'
 ];
+
+var ADMIN_HEADERS = ['Email', '備註'];
 
 var PAYMENT_HEADERS = [
   '活動ID', '報名鍵', '姓名', 'Email', '應繳金額', '已入帳', '帳號後五碼',
@@ -69,6 +72,7 @@ function setup() {
   var ss = SpreadsheetApp.getActive();
   var ev = ensureSheet_(ss, SHEET_EVENTS, EVENT_HEADERS);
   var pay = ensureSheet_(ss, SHEET_PAYMENTS, PAYMENT_HEADERS);
+  ensureSheet_(ss, SHEET_ADMINS, ADMIN_HEADERS);
 
   var maxRows = 2000;
   var payCols = headerIndex_(pay);
@@ -86,7 +90,7 @@ function setup() {
       .requireValueInList([EVENT_STATUS_OPEN, EVENT_STATUS_FULL, EVENT_STATUS_CLOSED], true)
       .setAllowInvalid(false).build());
 
-  ss.toast('「活動設定」「繳費狀態」已就緒', '設定完成', 5);
+  ss.toast('「活動設定」「繳費狀態」「管理員」已就緒', '設定完成', 5);
 }
 
 /** 選用：每小時自動同步一次（不裝也沒關係，打開總覽頁或按選單時都會同步）。 */
@@ -137,7 +141,7 @@ function menuOpenOverview() {
 function doGet() {
   if (!isAdmin_()) {
     return HtmlService.createHtmlOutput(
-      '<p style="font:15px sans-serif;padding:24px">這個帳號沒有後台權限。請用協會帳號登入，或請管理員把你的 Email 加進 ADMIN_EMAILS。</p>'
+      '<p style="font:15px sans-serif;padding:24px">這個帳號沒有後台權限。請用協會帳號登入，或請管理員把你的 Email 加進「報名後台」試算表的「管理員」工作表。</p>'
     ).setTitle('報名後台');
   }
   return HtmlService.createTemplateFromFile('Overview').evaluate()
@@ -171,7 +175,17 @@ function isAdmin_() {
   if (!me) return false;
   var owner = String(Session.getEffectiveUser().getEmail() || '').toLowerCase();
   if (me === owner) return true;
-  return ADMIN_EMAILS.map(function (e) { return String(e).trim().toLowerCase(); }).indexOf(me) !== -1;
+  return readAdminEmails_().indexOf(me) !== -1;
+}
+
+
+/** 「管理員」工作表 A 欄的 Email（小寫）。工作表不存在就只有部署帳號本人能看。 */
+function readAdminEmails_() {
+  var sh = SpreadsheetApp.getActive().getSheetByName(SHEET_ADMINS);
+  if (!sh || sh.getLastRow() < 2) return [];
+  return sh.getRange(2, 1, sh.getLastRow() - 1, 1).getValues()
+    .map(function (r) { return String(r[0]).trim().toLowerCase(); })
+    .filter(function (e) { return e.indexOf('@') !== -1; });
 }
 
 
