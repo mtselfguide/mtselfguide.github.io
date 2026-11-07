@@ -459,7 +459,7 @@ function notifySampleRow_(ctx) {
 
 /* ── 試算表與小工具 ──────────────────────────────────────────── */
 
-/** 只允許管理員寄信：使用主程式的 assertAdmin_()（ADMIN_EMAILS 白名單）；主程式不存在時不檢查。 */
+/** 只允許管理員寄信：使用主程式的 assertAdmin_()（「管理員」工作表白名單）；主程式不存在時不檢查。 */
 function notifyAssertAdmin_() {
   if (typeof assertAdmin_ === 'function') {
     try {
