@@ -192,6 +192,7 @@ function notifyAskActivity_(ui, label) {
  */
 function previewNotices(req) {
   return notifySafe_(function () {
+    notifyAssertAdmin_();
     var ctx = notifyBuildContext_(req);
     var plan = notifyPlanRecipients_(ctx, req && req.keys);
     var sample = plan.recipients.length ? notifyRenderMail_(ctx, plan.recipients[0]) : null;
@@ -215,6 +216,7 @@ function previewNotices(req) {
  */
 function sendNotices(req) {
   return notifySafe_(function () {
+    notifyAssertAdmin_();
     var lock = LockService.getDocumentLock();
     if (!lock.tryLock(20000)) throw notifyErr_('別人正在寄信，請稍後再試');
     try {
@@ -277,6 +279,7 @@ function sendNotices(req) {
 /** 用第一位收件人的資料，寄一封範例信給目前操作的人（不寫入寄出時間）。 */
 function sendTestNotice(req) {
   return notifySafe_(function () {
+    notifyAssertAdmin_();
     var ctx = notifyBuildContext_(req);
     var plan = notifyPlanRecipients_(ctx, null);
     var me = notifyOperator_();
@@ -350,12 +353,15 @@ function notifyPlanRecipients_(ctx, onlyKeys) {
       paidAmount: r[c['入帳金額']],
       paidDate: r[c['入帳日期']],
       last5: String(r[c['帳號後五碼']]).trim(),
-      sentAt: r[c[sentColName]]
+      sentAt: r[c[sentColName]],
+      status: c['報名狀態'] === undefined ? '' : String(r[c['報名狀態']]).trim()
     };
     if (want && !want[rec.key]) return;
     var who = rec.name || rec.email || ('第 ' + rec.row + ' 列');
 
     if (!notifyIsBlank_(rec.sentAt)) return; // 已寄過：安靜略過，不列入
+    if (rec.status === '取消') { skipped.push({ key: rec.key, name: who, reason: '已取消報名' }); return; }
+    if (ctx.type === 'pretrip' && rec.status === '備取') { skipped.push({ key: rec.key, name: who, reason: '備取中' }); return; }
     if (!rec.paid) { skipped.push({ key: rec.key, name: who, reason: '尚未勾選已入帳' }); return; }
     if (!notifyIsEmail_(rec.email)) { skipped.push({ key: rec.key, name: who, reason: 'Email 格式不正確' }); return; }
 
@@ -452,6 +458,17 @@ function notifySampleRow_(ctx) {
 
 
 /* ── 試算表與小工具 ──────────────────────────────────────────── */
+
+/** 只允許管理員寄信：使用主程式的 assertAdmin_()（ADMIN_EMAILS 白名單）；主程式不存在時不檢查。 */
+function notifyAssertAdmin_() {
+  if (typeof assertAdmin_ === 'function') {
+    try {
+      assertAdmin_();
+    } catch (e) {
+      throw notifyErr_('你沒有寄信的權限');
+    }
+  }
+}
 
 function notifySheet_(ss, name) {
   var sh = ss.getSheetByName(name);
