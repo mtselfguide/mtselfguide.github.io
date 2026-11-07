@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <base target="_top" />
+  <meta charset="utf-8" />
+  <style>
+    :root {
+      --forest: #3b4e40;
+      --paper: #f6f4ee;
+      --card: #ffffff;
+      --ink: #1f2a22;
+      --muted: #66706a;
+      --line: #dcd9cf;
+      --good: #2f7a4a;
+      --warn: #b8641c;
+      --bad: #b23a3a;
+      --track: #e9e6dc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Noto Sans TC", -apple-system, "Helvetica Neue", Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    .num { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace; font-variant-numeric: tabular-nums; }
+    header {
+      background: var(--forest);
+      color: #fff;
+      padding: 18px 16px;
+    }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+    header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0; }
+    h1 { margin: 0; font-size: 19px; font-weight: 900; letter-spacing: .02em; }
+    button {
+      font: inherit;
+      border: 1px solid rgba(255,255,255,.6);
+      background: transparent;
+      color: inherit;
+      border-radius: 6px;
+      padding: 6px 14px;
+      cursor: pointer;
+    }
+    button:disabled { opacity: .5; cursor: default; }
+    .meta { font-size: 12.5px; color: var(--muted); margin: 14px 0 0; }
+
+    .totals {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .tile { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+    .tile span { display: block; font-size: 12.5px; color: var(--muted); }
+    .tile b { display: block; font-size: 22px; font-weight: 600; margin-top: 2px; }
+    .tile.alert b { color: var(--bad); }
+
+    .errors { background: #fff4e5; border: 1px solid #f0c48a; border-radius: 10px; padding: 10px 14px; margin: 12px 0; font-size: 13.5px; }
+    .errors ul { margin: 4px 0 0; padding-left: 20px; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr)); gap: 14px; margin-bottom: 40px; align-items: start; }
+    .card { min-width: 0; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .card-head { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+    .card h2 { margin: 0; font-size: 16px; font-weight: 700; line-height: 1.4; }
+    .card .when { font-size: 13px; color: var(--muted); margin-top: 2px; }
+    .days { flex: none; text-align: right; font-size: 12px; color: var(--muted); }
+    .days b { display: block; font-size: 20px; color: var(--ink); font-weight: 600; }
+
+    .seats-line { display: flex; justify-content: space-between; font-size: 13.5px; margin-bottom: 6px; }
+    .bar { height: 8px; background: var(--track); border-radius: 4px; overflow: hidden; }
+    .bar i { display: block; height: 100%; background: var(--forest); border-radius: 4px; }
+    .bar.full i { background: var(--bad); }
+
+    .money { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .money div { background: var(--paper); border-radius: 8px; padding: 8px; min-width: 0; }
+    .money span { display: block; font-size: 12px; color: var(--muted); }
+    .money b { display: block; font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .money .owe b { color: var(--bad); }
+    .money .ok b { color: var(--good); }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag { font-size: 12px; border-radius: 999px; padding: 2px 10px; border: 1px solid; }
+    .tag.bad { color: var(--bad); border-color: var(--bad); }
+    .tag.warn { color: var(--warn); border-color: var(--warn); }
+    .tag.info { color: var(--muted); border-color: var(--line); }
+
+    details summary { cursor: pointer; font-size: 13.5px; color: var(--forest); font-weight: 500; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
+    th, td { text-align: left; padding: 6px 6px; white-space: nowrap; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-weight: 500; color: var(--muted); font-size: 12px; }
+    td.r, th.r { text-align: right; }
+    tr.cancel td { color: var(--muted); text-decoration: line-through; }
+    .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: 1px; }
+    .dot.y { background: var(--good); }
+    .dot.n { background: var(--line); }
+    .roster-scroll { overflow-x: auto; }
+
+    .empty, .loading { text-align: center; color: var(--muted); padding: 48px 0; }
+
+    @media (max-width: 640px) {
+      .totals { grid-template-columns: repeat(2, 1fr); }
+      .grid { grid-template-columns: 1fr; }
+      .tile b { font-size: 19px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>報名與收費總覽</h1>
+      <button id="refresh" type="button">重新整理</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <p class="meta" id="meta">讀取中…</p>
+    <div id="errors"></div>
+    <section class="totals" id="totals" aria-label="彙總"></section>
+    <section class="grid" id="cards"><p class="loading">正在同步各表單回覆…</p></section>
+  </main>
+
+  <script>
+    var FLAG_TEXT = {
+      full: ['bad', '額滿'],
+      below_minimum: ['warn', '未達成團人數'],
+      unpaid_soon: ['bad', '即將開課，尚有人未繳費']
+    };
+
+    function el(tag, cls, text) {
+      var n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (text !== undefined && text !== null) n.textContent = text;
+      return n;
+    }
+    function money(n) { return 'NT$' + Math.round(n || 0).toLocaleString('en-US'); }
+
+    function tile(label, value, alert) {
+      var t = el('div', 'tile' + (alert ? ' alert' : ''));
+      t.appendChild(el('span', '', label));
+      t.appendChild(el('b', 'num', value));
+      return t;
+    }
+
+    function renderTotals(t) {
+      var box = document.getElementById('totals');
+      box.textContent = '';
+      box.appendChild(tile('進行中場次', String(t.events)));
+      box.appendChild(tile('報名人數', String(t.count)));
+      box.appendChild(tile('已收', money(t.received)));
+      box.appendChild(tile('未收', money(t.outstanding), t.outstanding > 0));
+    }
+
+    function renderErrors(list) {
+      var box = document.getElementById('errors');
+      box.textContent = '';
+      if (!list || !list.length) return;
+      var d = el('div', 'errors');
+      d.appendChild(el('strong', '', '這些活動讀不到回覆，數字可能不完整：'));
+      var ul = el('ul');
+      list.forEach(function (m) { ul.appendChild(el('li', '', m)); });
+      d.appendChild(ul);
+      box.appendChild(d);
+    }
+
+    function card(ev) {
+      var c = el('article', 'card');
+
+      var head = el('div', 'card-head');
+      var title = el('div');
+      title.appendChild(el('h2', '', ev.name));
+      var when = ev.date + (ev.deadline ? '　｜　報名截止 ' + ev.deadline : '');
+      title.appendChild(el('div', 'when', when));
+      head.appendChild(title);
+      if (ev.daysLeft !== null) {
+        var d = el('div', 'days');
+        if (ev.daysLeft > 0) { d.appendChild(el('b', 'num', String(ev.daysLeft))); d.appendChild(document.createTextNode('天後開課')); }
+        else if (ev.daysLeft === 0) { d.appendChild(el('b', '', '今天')); }
+        else { d.appendChild(el('b', '', '已開課')); }
+        head.appendChild(d);
+      }
+      c.appendChild(head);
+
+      var seats = el('div');
+      var line = el('div', 'seats-line');
+      var cap = ev.capacity ? ' / ' + ev.capacity + ' 人' : ' 人（不限名額）';
+      line.appendChild(el('span', 'num', '報名 ' + ev.count + cap));
+      var extra = [];
+      if (ev.waitlist) extra.push('備取 ' + ev.waitlist);
+      if (ev.cancelled) extra.push('取消 ' + ev.cancelled);
+      line.appendChild(el('span', '', extra.join('　')));
+      seats.appendChild(line);
+      if (ev.capacity) {
+        var full = ev.count >= ev.capacity;
+        var bar = el('div', 'bar' + (full ? ' full' : ''));
+        var fill = el('i');
+        fill.style.width = Math.min(100, Math.round(ev.count / ev.capacity * 100)) + '%';
+        bar.appendChild(fill);
+        seats.appendChild(bar);
+      }
+      c.appendChild(seats);
+
+      var m = el('div', 'money');
+      [['應收', ev.due, ''], ['已收', ev.received, 'ok'], ['未收', ev.outstanding, ev.outstanding > 0 ? 'owe' : '']].forEach(function (x) {
+        var b = el('div', x[2]);
+        b.appendChild(el('span', '', x[0]));
+        b.appendChild(el('b', 'num', money(x[1])));
+        m.appendChild(b);
+      });
+      c.appendChild(m);
+
+      var tags = el('div', 'tags');
+      tags.appendChild(el('span', 'tag info', '已繳 ' + ev.paidCount + ' / ' + ev.count + ' 人'));
+      if (ev.status && ev.status !== '開放' && !(ev.status === '額滿' && ev.flags.indexOf('full') !== -1)) tags.appendChild(el('span', 'tag info', ev.status));
+      ev.flags.forEach(function (f) {
+        var t = FLAG_TEXT[f];
+        if (t) tags.appendChild(el('span', 'tag ' + t[0], t[1]));
+      });
+      c.appendChild(tags);
+
+      if (ev.roster.length) {
+        var det = el('details');
+        det.appendChild(el('summary', '', '名單（' + ev.roster.length + ' 人）'));
+        var wrap = el('div', 'roster-scroll');
+        var tb = el('table');
+        var thead = el('thead');
+        var hr = el('tr');
+        [['姓名', ''], ['應繳', 'r'], ['入帳', 'r'], ['入帳日', ''], ['後五碼', ''], ['通知', '']].forEach(function (h) { hr.appendChild(el('th', h[1], h[0])); });
+        thead.appendChild(hr);
+        tb.appendChild(thead);
+        var body = el('tbody');
+        ev.roster.forEach(function (p) {
+          var tr = el('tr', p.status === '取消' ? 'cancel' : '');
+          var name = el('td');
+          var dot = el('span', 'dot ' + (p.paid ? 'y' : 'n'));
+          dot.title = p.paid ? '已入帳' : '未入帳';
+          name.appendChild(dot);
+          name.appendChild(document.createTextNode(p.name + (p.status && p.status !== '正常' ? '（' + p.status + '）' : '')));
+          tr.appendChild(name);
+          tr.appendChild(el('td', 'r num', p.due ? Math.round(p.due).toLocaleString('en-US') : ''));
+          tr.appendChild(el('td', 'r num', p.paid && p.received ? Math.round(p.received).toLocaleString('en-US') : ''));
+          tr.appendChild(el('td', 'num', p.receivedDate || ''));
+          tr.appendChild(el('td', 'num', p.last5 || ''));
+          var sent = [];
+          if (p.paymentNoticeSent) sent.push('入帳');
+          if (p.pretripSent) sent.push('行前');
+          tr.appendChild(el('td', '', sent.join('、')));
+          body.appendChild(tr);
+        });
+        tb.appendChild(body);
+        wrap.appendChild(tb);
+        det.appendChild(wrap);
+        c.appendChild(det);
+      }
+      return c;
+    }
+
+    function render(data) {
+      var btn = document.getElementById('refresh');
+      btn.disabled = false;
+      var cards = document.getElementById('cards');
+      cards.textContent = '';
+      if (!data || !data.ok) {
+        document.getElementById('meta').textContent = '讀取失敗';
+        cards.appendChild(el('p', 'empty', (data && data.error) || '讀取失敗，請稍後再試'));
+        return;
+      }
+      var t = new Date(data.generatedAt);
+      document.getElementById('meta').textContent = '更新時間 ' + t.toLocaleString('zh-TW', { hour12: false });
+      renderErrors(data.errors);
+      renderTotals(data.totals);
+      if (!data.events.length) {
+        cards.appendChild(el('p', 'empty', '「活動設定」裡沒有進行中的活動。'));
+        return;
+      }
+      data.events.forEach(function (ev) { cards.appendChild(card(ev)); });
+    }
+
+    function load() {
+      var btn = document.getElementById('refresh');
+      btn.disabled = true;
+      document.getElementById('meta').textContent = '正在同步各表單回覆…';
+      google.script.run
+        .withSuccessHandler(render)
+        .withFailureHandler(function (e) { render({ ok: false, error: String(e && e.message || e) }); })
+        .getOverview();
+    }
+
+    document.getElementById('refresh').addEventListener('click', load);
+    load();
+  </script>
+</body>
+</html>
