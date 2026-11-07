@@ -3,7 +3,7 @@
  * ------------------------------------------------------------------
  * 綁在「報名後台」試算表上。只讀寫這三張工作表：
  *   活動設定：一個梯次一列（活動ID、活動名稱、活動日期、費用、行前通知主旨／內文…）
- *   繳費狀態：一位報名者一列（已入帳核取方塊、入帳金額、入帳日期、兩種寄出時間…）
+ *   繳費狀態：一位報名者一列（已入帳核取方塊、入帳金額、入帳日期、帳號後五碼、兩種寄出時間…）
  *   寄信紀錄：每寄一封（或失敗一次）就記一列
  * 各課程的表單回覆試算表一律不碰。
  *
@@ -33,7 +33,7 @@ var NOTIFY_REPLY_TO = '';
 
 /**
  * 入帳通知信件範本。可用的欄位：
- *   {姓名} {Email} {活動名稱} {活動日期} {費用} {應繳金額} {入帳金額} {入帳日期}
+ *   {姓名} {Email} {活動名稱} {活動日期} {費用} {應繳金額} {入帳金額} {入帳日期} {帳號後五碼}
  */
 var PAYMENT_SUBJECT = '【入帳確認】{活動名稱}（{活動日期}）';
 var PAYMENT_BODY = [
@@ -43,6 +43,7 @@ var PAYMENT_BODY = [
   '',
   '  入帳金額：NT${入帳金額}',
   '  入帳日期：{入帳日期}',
+  '  帳號後五碼：{帳號後五碼}',
   '',
   '您的報名已完成。活動前我們會另外寄送行前通知（集合時間、地點與裝備清單），',
   '請留意信箱，也請將本信箱加入通訊錄，以免通知被歸到垃圾郵件。',
@@ -82,7 +83,7 @@ var NOTIFY_TYPES = {
 
 /** 「繳費狀態」上寄信會用到的欄位；少了任何一欄就不寄，以免寫錯格。 */
 var NOTIFY_REQUIRED_PAYMENT_COLS = [
-  '活動ID', '報名鍵', '姓名', 'Email', '應繳金額', '已入帳', '入帳金額', '入帳日期',
+  '活動ID', '報名鍵', '姓名', 'Email', '應繳金額', '已入帳', '入帳金額', '入帳日期', '帳號後五碼',
   '入帳通知寄出時間', '行前通知寄出時間'
 ];
 var NOTIFY_REQUIRED_EVENT_COLS = ['活動ID', '活動名稱', '活動日期', '費用', '行前通知主旨', '行前通知內文'];
@@ -348,6 +349,7 @@ function notifyPlanRecipients_(ctx, onlyKeys) {
       paid: r[c['已入帳']] === true,
       paidAmount: r[c['入帳金額']],
       paidDate: r[c['入帳日期']],
+      last5: String(r[c['帳號後五碼']]).trim(),
       sentAt: r[c[sentColName]]
     };
     if (want && !want[rec.key]) return;
@@ -360,6 +362,7 @@ function notifyPlanRecipients_(ctx, onlyKeys) {
     if (ctx.type === 'payment') {
       if (notifyIsBlank_(rec.paidAmount)) { skipped.push({ key: rec.key, name: who, reason: '入帳金額未填' }); return; }
       if (notifyIsBlank_(rec.paidDate)) { skipped.push({ key: rec.key, name: who, reason: '入帳日期未填' }); return; }
+      if (!rec.last5) { skipped.push({ key: rec.key, name: who, reason: '帳號後五碼未填' }); return; }
       var due = notifyToNumber_(rec.due), got = notifyToNumber_(rec.paidAmount);
       if (due !== null && got !== null && due !== got) {
         warnings.push(who + '：入帳 ' + got + ' 元，應繳 ' + due + ' 元');
@@ -411,7 +414,8 @@ function notifyRenderMail_(ctx, rec) {
     '費用': notifyFmtMoney_(ctx.event.fee),
     '應繳金額': notifyFmtMoney_(rec.due),
     '入帳金額': notifyFmtMoney_(rec.paidAmount),
-    '入帳日期': notifyFmtDate_(rec.paidDate)
+    '入帳日期': notifyFmtDate_(rec.paidDate),
+    '帳號後五碼': rec.last5 || ''
   };
   var subject, body;
   if (ctx.type === 'payment') {
@@ -442,7 +446,7 @@ function notifyToHtml_(text) {
 function notifySampleRow_(ctx) {
   return {
     row: 0, key: 'sample', name: '王小明', email: notifyOperator_(),
-    due: ctx.event.fee, paidAmount: ctx.event.fee, paidDate: new Date()
+    due: ctx.event.fee, paidAmount: ctx.event.fee, paidDate: new Date(), last5: '12345'
   };
 }
 
@@ -484,7 +488,8 @@ function notifyAppendLog_(ctx, rec, result, operator) {
 function notifyPublicRow_(rec) {
   return {
     key: rec.key, name: rec.name, email: rec.email,
-    due: notifyToNumber_(rec.due), paidAmount: notifyToNumber_(rec.paidAmount), paidDate: notifyFmtDate_(rec.paidDate)
+    due: notifyToNumber_(rec.due), paidAmount: notifyToNumber_(rec.paidAmount), paidDate: notifyFmtDate_(rec.paidDate),
+    last5: rec.last5 || ''
   };
 }
 
