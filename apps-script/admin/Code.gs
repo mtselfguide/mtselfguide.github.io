@@ -6,7 +6,8 @@
  *
  * 這個檔案負責：
  *   setup()               → 建立「活動設定」「繳費狀態」兩張工作表與標題列（只做一次）
- *   syncRegistrations()   → 把各課程表單回覆同步進「繳費狀態」（一位報名者一列）
+ *   syncRegistrations()   → 把各課程表單回覆同步進「繳費狀態」（一位報名者一列），
+ *                           有新報名者時交給 coach.gs 寄信通知該活動的負責教練
  *   onOpen()              → 試算表上方的「協會後台」選單（寄信項目由 notify.gs 加入）
  *   doGet()               → 報名與收費總覽網頁（Overview.html）
  *   getOverview()         → 給總覽網頁用的資料（先同步、再加總）
@@ -43,7 +44,7 @@ var EVENT_HEADERS = [
   '回覆試算表ID', '回覆工作表名稱', '梯次欄', '梯次值',
   '姓名欄', 'Email欄', '電話欄', '後五碼欄',
   '名額', 'LINE群組連結', '行前通知寄出時間', '狀態',
-  '成團人數', '報名截止', '方案欄', '方案價格'
+  '成團人數', '報名截止', '方案欄', '方案價格', '負責教練Email'
 ];
 
 var ADMIN_HEADERS = ['Email', '備註'];
@@ -119,6 +120,7 @@ function menuSync() {
   var ui = SpreadsheetApp.getUi();
   var r = syncRegistrations();
   var lines = ['新增 ' + r.added + ' 位報名者，更新 ' + r.updated + ' 位。'];
+  if (r.coachMails) lines.push('已寄 ' + r.coachMails + ' 封新報名通知給負責教練。');
   if (r.errors.length) {
     lines.push('');
     lines.push('有問題的活動：');
@@ -207,6 +209,7 @@ function syncRegistrations() {
 
     var added = [], updated = 0, errors = [];
     var cache = {};
+    var fresh = []; // [{ event, regs:[這次新增的報名] }]，給 coach.gs 通知教練
 
     events.forEach(function (ev) {
       var regs;
@@ -216,6 +219,7 @@ function syncRegistrations() {
         errors.push(ev.id + '：' + (e && e.message || e));
         return;
       }
+      var freshRegs = [];
       regs.forEach(function (r) {
         var hit = byKey[ev.id + '\u0000' + r.key];
         if (!hit) {
@@ -230,6 +234,7 @@ function syncRegistrations() {
           row[c['帳號後五碼']] = r.last5;
           row[c['報名狀態']] = REG_STATUS_OK;
           added.push(row);
+          freshRegs.push(r);
           byKey[ev.id + '\u0000' + r.key] = { activityId: ev.id, key: r.key };
           return;
         }
@@ -239,6 +244,7 @@ function syncRegistrations() {
         if (r.last5 && r.last5 !== hit.last5) { pay.sheet.getRange(hit.row, c['帳號後五碼'] + 1).setValue(r.last5); changed = true; }
         if (changed) updated++;
       });
+      if (freshRegs.length) fresh.push({ event: ev, regs: freshRegs });
     });
 
     if (added.length) {
@@ -247,13 +253,20 @@ function syncRegistrations() {
       pay.sheet.getRange(start, c['已入帳'] + 1, added.length, 1).insertCheckboxes();
     }
     SpreadsheetApp.flush();
-    return { added: added.length, updated: updated, errors: errors };
+
+    var coachMails = 0;
+    if (fresh.length && typeof notifyCoachesOfNewRegistrations_ === 'function') {
+      var cr = notifyCoachesOfNewRegistrations_(fresh, pay.rows);
+      coachMails = cr.sent;
+      cr.errors.forEach(function (e) { errors.push(e); });
+    }
+    return { added: added.length, updated: updated, errors: errors, coachMails: coachMails };
   } finally {
     lock.releaseLock();
   }
 }
 
-/** 讀一個活動（梯次）的表單回覆，回傳 [{key, name, email, last5, due}]。 */
+/** 讀一個活動（梯次）的表單回覆，回傳 [{key, submittedAt, name, email, phone, plan, last5, due}]。 */
 function readResponses_(ev, cache) {
   var ckey = ev.sourceId + '\u0000' + ev.sourceSheet;
   var table = cache[ckey];
@@ -283,6 +296,8 @@ function readResponses_(ev, cache) {
   var last5Col = col(ev.last5Col, '後五碼欄');
   var batchCol = col(ev.batchCol, '梯次欄');
   var planCol  = col(ev.planCol, '方案欄');
+  // 電話只用在教練通知信，找不到不擋同步
+  var phoneCol = ev.phoneCol ? head.indexOf(ev.phoneCol) : -1;
   var batchVal = String(ev.batchVal || '').trim();
 
   var out = [];
@@ -308,8 +323,11 @@ function readResponses_(ev, cache) {
     }
     out.push({
       key: ts.toISOString() + '|' + email.toLowerCase(),
+      submittedAt: ts,
       name: String(row[nameCol] || '').trim(),
       email: email,
+      phone: phoneCol === -1 ? '' : String(row[phoneCol] || '').trim(),
+      plan: planCol === -1 ? '' : String(row[planCol] || '').trim(),
       last5: last5Col === -1 ? '' : normalizeLast5_(row[last5Col]),
       due: due
     });
@@ -412,13 +430,17 @@ function readEvents_() {
       batchVal: String(v(r, '梯次值')).trim(),
       nameCol: String(v(r, '姓名欄')).trim(),
       emailCol: String(v(r, 'Email欄')).trim(),
+      phoneCol: String(v(r, '電話欄')).trim(),
       last5Col: String(v(r, '後五碼欄')).trim(),
       capacity: toNumber_(v(r, '名額')),
       minimum: toNumber_(v(r, '成團人數')),
       deadline: v(r, '報名截止'),
       status: String(v(r, '狀態')).trim() || EVENT_STATUS_OPEN,
       planCol: String(v(r, '方案欄')).trim(),
-      planPrices: parsePlanPrices_(v(r, '方案價格'))
+      planPrices: parsePlanPrices_(v(r, '方案價格')),
+      coachEmails: String(v(r, '負責教練Email')).split(/[\s,，;；、]+/)
+        .map(function (s) { return s.trim(); })
+        .filter(function (s) { return s.indexOf('@') !== -1; })
     };
   }).filter(function (e) { return e.id; });
 }

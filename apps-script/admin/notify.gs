@@ -124,6 +124,13 @@ function menuSendTestNotice() {
   var ui = SpreadsheetApp.getUi();
   var type = notifyAskType_(ui);
   if (!type) return;
+  if (type === 'coach') {
+    var coachId = notifyAskActivity_(ui, '新報名通知（給教練）');
+    if (!coachId) return;
+    var c = sendTestCoachMail_(coachId);
+    ui.alert(c.ok ? c.message : '沒有寄出：' + c.error);
+    return;
+  }
   var activityId = notifyAskActivity_(ui, NOTIFY_TYPES[type].label);
   if (!activityId) return;
   var r = sendTestNotice({ type: type, activityId: activityId });
@@ -177,12 +184,15 @@ function notifyMenuSend_(type) {
 }
 
 function notifyAskType_(ui) {
-  var res = ui.prompt('要寄哪一種範例？', '輸入 1 = 入帳通知，2 = 行前通知', ui.ButtonSet.OK_CANCEL);
+  var hasCoach = typeof sendTestCoachMail_ === 'function';
+  var res = ui.prompt('要寄哪一種範例？',
+    '輸入 1 = 入帳通知，2 = 行前通知' + (hasCoach ? '，3 = 新報名通知（給教練）' : ''), ui.ButtonSet.OK_CANCEL);
   if (res.getSelectedButton() !== ui.Button.OK) return null;
   var v = res.getResponseText().trim();
   if (v === '1') return 'payment';
   if (v === '2') return 'pretrip';
-  ui.alert('請輸入 1 或 2。');
+  if (v === '3' && hasCoach) return 'coach';
+  ui.alert(hasCoach ? '請輸入 1、2 或 3。' : '請輸入 1 或 2。');
   return null;
 }
 
