@@ -2,7 +2,7 @@
  * 報名後台 — 入帳通知與行前通知寄送（Google Apps Script）
  * ------------------------------------------------------------------
  * 綁在「報名後台」試算表上。只讀寫這三張工作表：
- *   活動設定：一個梯次一列（活動ID、活動名稱、活動日期、費用、行前通知主旨／內文…）
+ *   活動設定：一個梯次一列（活動ID、活動名稱、活動日期、費用、LINE群組連結…）
  *   繳費狀態：一位報名者一列（已入帳核取方塊、入帳金額、入帳日期、帳號後五碼、兩種寄出時間…）
  *   寄信紀錄：每寄一封（或失敗一次）就記一列
  * 各課程的表單回覆試算表一律不碰。
@@ -61,11 +61,22 @@ var PAYMENT_BODY = [
 ].join('\n');
 
 /**
- * 行前通知：主旨與內文寫在「活動設定」的「行前通知主旨」「行前通知內文」欄，
- * 每個梯次各自一份。可用的欄位與入帳通知相同。
- * 主旨留空時用這個預設值。
+ * 行前通知信件範本。可用的欄位與入帳通知相同，另加 {LINE群組連結}
+ * （每個梯次各自填在「活動設定」的「LINE群組連結」欄）。
  */
-var PRETRIP_DEFAULT_SUBJECT = '【行前通知】{活動名稱}（{活動日期}）';
+var PRETRIP_SUBJECT = '【行前通知-{活動名稱}】- {姓名}';
+var PRETRIP_BODY = [
+  '親愛的 {姓名}，您好：',
+  '',
+  '感謝您一同參與 【{活動名稱}】',
+  '',
+  '請依據以下連結，加入LINE群組，如有任何問題歡迎與我們聯繫！',
+  '',
+  '上課LINE群組: {LINE群組連結}',
+  '',
+  '',
+  '台灣自主登山能力推廣協會 敬上'
+].join('\n');
 
 /** 單次執行最多寄幾封；Apps Script 單次執行上限 6 分鐘，剩下的再按一次即可。 */
 var MAX_SEND_PER_RUN = 150;
@@ -93,7 +104,7 @@ var NOTIFY_REQUIRED_PAYMENT_COLS = [
   '活動ID', '報名鍵', '姓名', 'Email', '應繳金額', '已入帳', '入帳金額', '入帳日期', '帳號後五碼',
   '入帳通知寄出時間', '行前通知寄出時間'
 ];
-var NOTIFY_REQUIRED_EVENT_COLS = ['活動ID', '活動名稱', '活動日期', '費用', '行前通知主旨', '行前通知內文'];
+var NOTIFY_REQUIRED_EVENT_COLS = ['活動ID', '活動名稱', '活動日期', '費用', 'LINE群組連結'];
 
 
 /* ── 選單 ────────────────────────────────────────────────────── */
@@ -334,8 +345,8 @@ function notifyBuildContext_(req) {
   var event = events[activityId];
   if (!event) throw notifyErr_('「活動設定」找不到活動ID「' + activityId + '」');
 
-  if (type === 'pretrip' && !String(event.pretripBody).trim()) {
-    throw notifyErr_('「' + event.name + '」的「行前通知內文」還沒填');
+  if (type === 'pretrip' && !event.lineUrl) {
+    throw notifyErr_('「' + event.name + '」的「LINE群組連結」還沒填');
   }
 
   return {
@@ -418,8 +429,7 @@ function notifyReadEvents_() {
       date: r[c['活動日期']],
       dateText: notifyFmtDate_(r[c['活動日期']]),
       fee: r[c['費用']],
-      pretripSubject: String(r[c['行前通知主旨']] || ''),
-      pretripBody: String(r[c['行前通知內文']] || '')
+      lineUrl: String(r[c['LINE群組連結']] || '').trim()
     };
   });
   return out;
@@ -438,15 +448,16 @@ function notifyRenderMail_(ctx, rec) {
     '應繳金額': notifyFmtMoney_(rec.due),
     '入帳金額': notifyFmtMoney_(rec.paidAmount),
     '入帳日期': notifyFmtDate_(rec.paidDate),
-    '帳號後五碼': rec.last5 || ''
+    '帳號後五碼': rec.last5 || '',
+    'LINE群組連結': ctx.event.lineUrl
   };
   var subject, body;
   if (ctx.type === 'payment') {
     subject = PAYMENT_SUBJECT;
     body = PAYMENT_BODY;
   } else {
-    subject = ctx.event.pretripSubject.trim() || PRETRIP_DEFAULT_SUBJECT;
-    body = ctx.event.pretripBody;
+    subject = PRETRIP_SUBJECT;
+    body = PRETRIP_BODY;
   }
   return { to: rec.email, subject: notifyFill_(subject, vars), body: notifyFill_(body, vars) };
 }
