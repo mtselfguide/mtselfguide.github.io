@@ -17,7 +17,7 @@
  *   previewNotices({type, activityId})            → 預覽：會寄給誰、誰被略過與原因、範例信件
  *   sendNotices({type, activityId, keys?})        → 寄出；keys 可指定只寄給哪些報名鍵
  *   sendTestNotice({type, activityId})            → 用第一位收件人的資料寄一封範例給自己
- *   type 為 'payment'（入帳通知）或 'pretrip'（行前通知）
+ *   type 為 'payment'（入帳通知）、'pretrip'（行前通知）或 'cancel'（流團通知）
  * 完整說明見 docs/admin-notify.md。
  */
 
@@ -30,6 +30,9 @@ var NOTIFY_SENDER_NAME = '台灣自主登山能力推廣協會';
 
 /** 收件人按「回覆」時寄到哪裡；留空 = 回覆給寄件帳號本身。 */
 var NOTIFY_REPLY_TO = '';
+
+/** 每一封正式寄出的通知都副本給這個信箱（寄給自己的範例信不副本）；留空 = 不副本。 */
+var NOTIFY_CC = 'services@mtselfguide.com';
 
 /**
  * 入帳通知信件範本。可用的欄位：
@@ -78,6 +81,41 @@ var PRETRIP_BODY = [
   '台灣自主登山能力推廣協會 敬上'
 ].join('\n');
 
+/**
+ * 流團（活動取消）通知信件範本。只寄給已入帳的人，告知全額退費。
+ * {取消原因} 填在「活動設定」的「取消原因」欄，會接在「由於」後面，例如「報名人數未達開課門檻」。
+ * {入帳金額} 為該學員實際入帳的金額，即退費金額。
+ */
+var CANCEL_SUBJECT = '【活動取消通知-{活動名稱}】- {姓名}';
+var CANCEL_BODY = [
+  '親愛的 {姓名}，您好：',
+  '',
+  '非常感謝您報名由「台灣自主登山能力推廣協會」舉辦的【{活動名稱}】活動。',
+  '',
+  '我們和大家一樣，也十分期待著這堂課的到來。不過，由於{取消原因}，我們仍遺憾地決定：【本次活動將取消辦理】。',
+  '',
+  '非常可惜，這次沒辦法和您一起在山上/課堂上交流學習，讓您空出了時間卻撲了個空，我們感到萬分抱歉與不捨！🥺',
+  '',
+  '為了不耽誤您的寶貴時間，我們將立即為您辦理全額退費，後續處理方式如下：',
+  '',
+  '一、全額退費流程',
+  '我們會將您先前支付的費用 NT${入帳金額} 元，全額退款至您的帳戶，預計於 3-5 個工作天內處理完畢，再請您留意。',
+  '請提供您的帳戶資訊',
+  '· 銀行（代號）',
+  '· 帳號',
+  '',
+  '二、這絕對不是終點！',
+  '山一直都在，我們的學習之路也是！雖然此次緣分未到，我們仍期待未來繼續與您一起提升獨立自主的登山能力。',
+  '歡迎持續關注協會臉書上的最新消息，後續開課資訊也都會第一時間於臉書公告，期待下次課程中與您相見！',
+  '👉追蹤協會臉書：https://www.facebook.com/share/1BSGbybbzS/?mibextid=wwXIfr',
+  '',
+  '如果您對退費流程有任何疑問，或者有任何想對我們說的話，歡迎直接回覆本信件。',
+  '',
+  '再次謝謝您的支持與體諒，祝您近期上山都有大景、出入平安！',
+  '',
+  '台灣自主登山能力推廣協會 敬上'
+].join('\n');
+
 /** 單次執行最多寄幾封；Apps Script 單次執行上限 6 分鐘，剩下的再按一次即可。 */
 var MAX_SEND_PER_RUN = 150;
 
@@ -96,7 +134,8 @@ var NOTIFY_LOG_HEADERS = ['時間', '活動ID', '報名鍵', '收件人', '類�
 
 var NOTIFY_TYPES = {
   payment: { label: '入帳通知', sentCol: '入帳通知寄出時間' },
-  pretrip: { label: '行前通知', sentCol: '行前通知寄出時間' }
+  pretrip: { label: '行前通知', sentCol: '行前通知寄出時間' },
+  cancel:  { label: '流團通知', sentCol: '流團通知寄出時間' }
 };
 
 /** 「繳費狀態」上寄信會用到的欄位；少了任何一欄就不寄，以免寫錯格。 */
@@ -114,11 +153,13 @@ function addNotifyMenuItems_(menu) {
   return menu
     .addItem('寄出入帳通知…', 'menuSendPaymentNotices')
     .addItem('寄出行前通知…', 'menuSendPretripNotices')
+    .addItem('寄出流團（活動取消）通知…', 'menuSendCancelNotices')
     .addItem('寄一封範例信給自己…', 'menuSendTestNotice');
 }
 
 function menuSendPaymentNotices() { notifyMenuSend_('payment'); }
 function menuSendPretripNotices() { notifyMenuSend_('pretrip'); }
+function menuSendCancelNotices() { notifyMenuSend_('cancel'); }
 
 function menuSendTestNotice() {
   var ui = SpreadsheetApp.getUi();
@@ -186,13 +227,15 @@ function notifyMenuSend_(type) {
 function notifyAskType_(ui) {
   var hasCoach = typeof sendTestCoachMail_ === 'function';
   var res = ui.prompt('要寄哪一種範例？',
-    '輸入 1 = 入帳通知，2 = 行前通知' + (hasCoach ? '，3 = 新報名通知（給教練）' : ''), ui.ButtonSet.OK_CANCEL);
+    '輸入 1 = 入帳通知，2 = 行前通知' + (hasCoach ? '，3 = 新報名通知（給教練）' : '') + '，4 = 流團通知',
+    ui.ButtonSet.OK_CANCEL);
   if (res.getSelectedButton() !== ui.Button.OK) return null;
   var v = res.getResponseText().trim();
   if (v === '1') return 'payment';
   if (v === '2') return 'pretrip';
   if (v === '3' && hasCoach) return 'coach';
-  ui.alert(hasCoach ? '請輸入 1、2 或 3。' : '請輸入 1 或 2。');
+  if (v === '4') return 'cancel';
+  ui.alert(hasCoach ? '請輸入 1、2、3 或 4。' : '請輸入 1、2 或 4。');
   return null;
 }
 
@@ -271,6 +314,7 @@ function sendNotices(req) {
           GmailApp.sendEmail(mail.to, mail.subject, mail.body, {
             name: NOTIFY_SENDER_NAME,
             replyTo: NOTIFY_REPLY_TO || undefined,
+            cc: NOTIFY_CC || undefined,
             htmlBody: notifyToHtml_(mail.body)
           });
         } catch (e) {
@@ -348,6 +392,14 @@ function notifyBuildContext_(req) {
   if (type === 'pretrip' && !event.lineUrl) {
     throw notifyErr_('「' + event.name + '」的「LINE群組連結」還沒填');
   }
+  if (type === 'cancel') {
+    if (payCols['流團通知寄出時間'] === undefined) {
+      throw notifyErr_('「繳費狀態」缺少「流團通知寄出時間」欄，請先執行一次 setup()');
+    }
+    if (!event.cancelReason) {
+      throw notifyErr_('「' + event.name + '」的「取消原因」還沒填（活動設定）');
+    }
+  }
 
   return {
     type: type, ss: ss,
@@ -393,6 +445,10 @@ function notifyPlanRecipients_(ctx, onlyKeys) {
     if (!rec.paid) { skipped.push({ key: rec.key, name: who, reason: '尚未勾選已入帳' }); return; }
     if (!notifyIsEmail_(rec.email)) { skipped.push({ key: rec.key, name: who, reason: 'Email 格式不正確' }); return; }
 
+    if (ctx.type === 'cancel' && notifyIsBlank_(rec.paidAmount)) {
+      skipped.push({ key: rec.key, name: who, reason: '入帳金額未填（退費金額要用）' }); return;
+    }
+
     if (ctx.type === 'payment') {
       if (notifyIsBlank_(rec.paidAmount)) { skipped.push({ key: rec.key, name: who, reason: '入帳金額未填' }); return; }
       if (notifyIsBlank_(rec.paidDate)) { skipped.push({ key: rec.key, name: who, reason: '入帳日期未填' }); return; }
@@ -429,7 +485,8 @@ function notifyReadEvents_() {
       date: r[c['活動日期']],
       dateText: notifyFmtDate_(r[c['活動日期']]),
       fee: r[c['費用']],
-      lineUrl: String(r[c['LINE群組連結']] || '').trim()
+      lineUrl: String(r[c['LINE群組連結']] || '').trim(),
+      cancelReason: c['取消原因'] === undefined ? '' : String(r[c['取消原因']] || '').trim()
     };
   });
   return out;
@@ -449,12 +506,16 @@ function notifyRenderMail_(ctx, rec) {
     '入帳金額': notifyFmtMoney_(rec.paidAmount),
     '入帳日期': notifyFmtDate_(rec.paidDate),
     '帳號後五碼': rec.last5 || '',
-    'LINE群組連結': ctx.event.lineUrl
+    'LINE群組連結': ctx.event.lineUrl,
+    '取消原因': ctx.event.cancelReason
   };
   var subject, body;
   if (ctx.type === 'payment') {
     subject = PAYMENT_SUBJECT;
     body = PAYMENT_BODY;
+  } else if (ctx.type === 'cancel') {
+    subject = CANCEL_SUBJECT;
+    body = CANCEL_BODY;
   } else {
     subject = PRETRIP_SUBJECT;
     body = PRETRIP_BODY;
