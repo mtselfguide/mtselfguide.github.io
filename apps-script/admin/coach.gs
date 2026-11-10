@@ -140,19 +140,33 @@ function buildCoachMail_(ev, regs, info) {
   return { subject: subject, text: text, html: html };
 }
 
-/** 選單用：寄一封範例新報名通知給自己（用假資料，不寫任何工作表）。 */
-function menuSendTestCoachMail() {
-  var ui = SpreadsheetApp.getUi();
-  var events = readEvents_().filter(function (e) { return e.status !== EVENT_STATUS_CLOSED; });
-  if (!events.length) { ui.alert('「活動設定」沒有進行中的活動'); return; }
-  var me = coachOperator_();
-  var ev = events[0];
-  var mail = buildCoachMail_(ev, [{
-    submittedAt: new Date(), name: '王小明', phone: '0912-345-678', email: 'sample@example.com',
-    plan: ev.planCol ? '範例方案' : '', last5: '12345', due: ev.fee
-  }], { count: 1, firstSync: false, overviewUrl: ScriptApp.getService().getUrl() || '' });
-  GmailApp.sendEmail(me, '［範例］' + mail.subject, mail.text, { htmlBody: mail.html });
-  ui.alert('範例信已寄到 ' + me + '（用「' + ev.id + '」的設定）');
+/**
+ * 寄一封範例新報名通知給自己（假資料，不寫任何工作表）。
+ * 由 notify.gs 的「寄一封範例信給自己…」選 3 呼叫。回傳 { ok, message } 或 { ok:false, error }。
+ */
+function sendTestCoachMail_(activityId) {
+  try {
+    var ev = readEvents_().filter(function (e) { return e.id === activityId; })[0];
+    if (!ev) return { ok: false, error: '找不到活動ID「' + activityId + '」' };
+    var me = coachOperator_();
+    if (me.indexOf('@') === -1) return { ok: false, error: '抓不到你的 Email' };
+    var url = '';
+    try { url = ScriptApp.getService().getUrl() || ''; } catch (e) { /* 還沒部署成網頁 */ }
+    var mail = buildCoachMail_(ev, [{
+      submittedAt: new Date(), name: '王小明', phone: '0912-345-678', email: 'sample@example.com',
+      plan: ev.planCol ? '範例方案' : '', last5: '12345', due: ev.fee
+    }], { count: 1, firstSync: false, overviewUrl: url });
+    GmailApp.sendEmail(me, '［範例］' + mail.subject, mail.text, {
+      name: typeof NOTIFY_SENDER_NAME === 'string' ? NOTIFY_SENDER_NAME : '台灣自主登山能力推廣協會',
+      htmlBody: mail.html
+    });
+    var note = ev.coachEmails.length
+      ? '正式通知會寄給：' + ev.coachEmails.join('、')
+      : '⚠ 這個活動的「負責教練Email」還沒填，正式通知不會寄出。';
+    return { ok: true, message: '範例信已寄到 ' + me + '\n' + note };
+  } catch (e) {
+    return { ok: false, error: String(e && e.message || e) };
+  }
 }
 
 function coachLog_(activityId, regs, to, result, operator) {
