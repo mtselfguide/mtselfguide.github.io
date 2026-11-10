@@ -113,9 +113,6 @@ function onOpen() {
     menu.addSeparator();
     addNotifyMenuItems_(menu);
   }
-  if (typeof menuSendTestCoachMail === 'function') {
-    menu.addItem('寄一封新報名通知範例給自己', 'menuSendTestCoachMail');
-  }
   menu.addToUi();
 }
 
