@@ -98,6 +98,54 @@
     .dot.n { background: var(--line); }
     .roster-scroll { overflow-x: auto; }
 
+    .notices { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12.5px; }
+    .notices .label { color: var(--muted); margin-right: 2px; }
+    .ntag { border-radius: 999px; padding: 2px 10px; background: #e6f1ea; color: var(--good); }
+    .ntag.cancel { background: #f7e4e4; color: var(--bad); }
+    .ntag.none { background: transparent; color: var(--muted); border: 1px dashed var(--line); }
+    .card-actions { display: flex; justify-content: flex-end; }
+    .btn {
+      border: 1px solid var(--forest);
+      color: var(--forest);
+      background: #fff;
+      font-size: 13.5px;
+      padding: 5px 12px;
+    }
+    .btn.primary { background: var(--forest); color: #fff; }
+    .btn.danger { background: var(--bad); border-color: var(--bad); color: #fff; }
+
+    dialog {
+      width: min(560px, calc(100vw - 32px));
+      max-height: calc(100vh - 48px);
+      border: none;
+      border-radius: 12px;
+      padding: 0;
+      color: var(--ink);
+      background: var(--card);
+      box-shadow: 0 12px 40px rgba(0,0,0,.25);
+    }
+    dialog::backdrop { background: rgba(20, 28, 22, .45); }
+    .dlg { display: flex; flex-direction: column; max-height: calc(100vh - 48px); }
+    .dlg-head { padding: 14px 16px; border-bottom: 1px solid var(--line); }
+    .dlg-head h3 { margin: 0; font-size: 16px; }
+    .dlg-head div { font-size: 13px; color: var(--muted); margin-top: 2px; }
+    .dlg-body { padding: 14px 16px; overflow-y: auto; font-size: 14px; }
+    .dlg-foot { padding: 12px 16px; border-top: 1px solid var(--line); display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+    .types { display: flex; flex-direction: column; gap: 8px; }
+    .type-opt { display: flex; gap: 10px; align-items: flex-start; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; cursor: pointer; }
+    .type-opt:hover { border-color: var(--forest); }
+    .type-opt input { margin-top: 4px; }
+    .type-opt b { display: block; font-weight: 600; }
+    .type-opt span { display: block; font-size: 12.5px; color: var(--muted); }
+    .type-opt .done { color: var(--good); }
+    .note { font-size: 13px; color: var(--muted); margin: 0 0 10px; }
+    .warn-box { background: #fff4e5; border: 1px solid #f0c48a; border-radius: 8px; padding: 8px 12px; margin: 10px 0; font-size: 13px; }
+    .warn-box ul, .skip-list { margin: 4px 0 0; padding-left: 20px; }
+    .skip-list { font-size: 13px; color: var(--muted); }
+    .sample { background: var(--paper); border-radius: 8px; padding: 10px 12px; margin-top: 10px; font-size: 13px; white-space: pre-wrap; max-height: 220px; overflow-y: auto; }
+    .result-ok { color: var(--good); font-weight: 600; }
+    .result-bad { color: var(--bad); font-weight: 600; }
+
     .empty, .loading { text-align: center; color: var(--muted); padding: 48px 0; }
 
     @media (max-width: 640px) {
@@ -121,6 +169,14 @@
     <section class="totals" id="totals" aria-label="彙總"></section>
     <section class="grid" id="cards"><p class="loading">正在同步各表單回覆…</p></section>
   </main>
+
+  <dialog id="notify" aria-labelledby="dlg-title">
+    <div class="dlg">
+      <div class="dlg-head"><h3 id="dlg-title"></h3><div id="dlg-sub"></div></div>
+      <div class="dlg-body" id="dlg-body"></div>
+      <div class="dlg-foot" id="dlg-foot"></div>
+    </div>
+  </dialog>
 
   <script>
     var FLAG_TEXT = {
@@ -220,6 +276,15 @@
       });
       c.appendChild(tags);
 
+      c.appendChild(noticeRow(ev));
+
+      var actions = el('div', 'card-actions');
+      var sendBtn = el('button', 'btn', '寄信通知');
+      sendBtn.type = 'button';
+      sendBtn.addEventListener('click', function () { openNotify(ev); });
+      actions.appendChild(sendBtn);
+      c.appendChild(actions);
+
       if (ev.roster.length) {
         var det = el('details');
         det.appendChild(el('summary', '', '名單（' + ev.roster.length + ' 人）'));
@@ -246,6 +311,7 @@
           var sent = [];
           if (p.paymentNoticeSent) sent.push('入帳');
           if (p.pretripSent) sent.push('行前');
+          if (p.cancelSent) sent.push('流團');
           tr.appendChild(el('td', '', sent.join('、')));
           body.appendChild(tr);
         });
@@ -255,6 +321,228 @@
         c.appendChild(det);
       }
       return c;
+    }
+
+    /* ── 已通知類型 ─────────────────────────────── */
+
+    var NOTICE_HINT = {
+      payment: '寄給已勾選入帳、且入帳金額／日期／後五碼都填好的人',
+      pretrip: '只寄給已入帳的人（備取不寄），信裡附 LINE 群組連結',
+      cancel: '只寄給已入帳的人，告知活動取消與全額退費'
+    };
+
+    function noticeRow(ev) {
+      var row = el('div', 'notices');
+      row.appendChild(el('span', 'label', '已通知'));
+      var sent = (ev.notices || []).filter(function (n) { return n.sent > 0; });
+      if (!sent.length) {
+        row.appendChild(el('span', 'ntag none', '尚未寄出任何通知'));
+        return row;
+      }
+      sent.forEach(function (n) {
+        var t = el('span', 'ntag' + (n.type === 'cancel' ? ' cancel' : ''),
+          '✓ ' + n.label + ' ' + n.sent + ' 人' + (n.lastAt ? '（' + n.lastAt + '）' : ''));
+        if (n.lastAt) t.title = '最後一次寄出：' + n.lastAt;
+        row.appendChild(t);
+      });
+      return row;
+    }
+
+    /* ── 寄信通知對話框 ───────────────────────── */
+
+    var dlg = {
+      ev: null, type: null, preview: null, busy: false, sentSomething: false,
+      node: function () { return document.getElementById('notify'); }
+    };
+
+    function dlgSet(title, sub, bodyNodes, buttons) {
+      document.getElementById('dlg-title').textContent = title;
+      document.getElementById('dlg-sub').textContent = sub || '';
+      var body = document.getElementById('dlg-body');
+      body.textContent = '';
+      bodyNodes.forEach(function (n) { body.appendChild(n); });
+      var foot = document.getElementById('dlg-foot');
+      foot.textContent = '';
+      buttons.forEach(function (b) {
+        var btn = el('button', 'btn' + (b.cls ? ' ' + b.cls : ''), b.text);
+        btn.type = 'button';
+        if (b.disabled) btn.disabled = true;
+        btn.addEventListener('click', b.onClick);
+        foot.appendChild(btn);
+      });
+    }
+
+    function dlgBusy(text) {
+      dlg.busy = true;
+      var foot = document.getElementById('dlg-foot');
+      Array.prototype.forEach.call(foot.querySelectorAll('button'), function (b) { b.disabled = true; });
+      document.getElementById('dlg-sub').textContent = text;
+    }
+
+    function closeNotify() {
+      if (dlg.busy) return;
+      var d = dlg.node();
+      if (d.open) d.close();
+      if (dlg.sentSomething) { dlg.sentSomething = false; load(); }
+    }
+
+    function openNotify(ev) {
+      dlg.ev = ev;
+      dlg.type = null;
+      dlg.preview = null;
+      dlg.busy = false;
+      showTypePicker();
+      var d = dlg.node();
+      if (typeof d.showModal === 'function') d.showModal(); else d.setAttribute('open', '');
+    }
+
+    function showTypePicker() {
+      var ev = dlg.ev;
+      var box = el('div', 'types');
+      var byType = {};
+      (ev.notices || []).forEach(function (n) { byType[n.type] = n; });
+      var picked = null;
+      ['payment', 'pretrip', 'cancel'].forEach(function (type) {
+        var n = byType[type] || { label: type, sent: 0 };
+        var lab = el('label', 'type-opt');
+        var input = el('input');
+        input.type = 'radio';
+        input.name = 'ntype';
+        input.value = type;
+        input.addEventListener('change', function () { picked = type; nextBtn().disabled = false; });
+        lab.appendChild(input);
+        var txt = el('div');
+        txt.appendChild(el('b', '', n.label));
+        txt.appendChild(el('span', '', NOTICE_HINT[type]));
+        txt.appendChild(el('span', n.sent ? 'done' : '',
+          n.sent ? '已寄 ' + n.sent + ' 人' + (n.lastAt ? '，最後一次 ' + n.lastAt : '') + '（寄過的人不會重寄）' : '尚未寄過'));
+        lab.appendChild(txt);
+        box.appendChild(lab);
+      });
+      function nextBtn() { return document.getElementById('dlg-foot').querySelector('.primary'); }
+      dlgSet('寄信通知', ev.name + '　' + ev.date, [el('p', 'note', '選擇要寄的通知類型，下一步會先預覽收件人，確認後才寄出。'), box], [
+        { text: '取消', onClick: closeNotify },
+        { text: '下一步：預覽', cls: 'primary', disabled: true, onClick: function () { if (picked) loadPreview(picked); } }
+      ]);
+    }
+
+    function loadPreview(type) {
+      dlg.type = type;
+      dlgBusy('正在整理收件人…');
+      google.script.run
+        .withSuccessHandler(showPreview)
+        .withFailureHandler(function (e) { showError(String(e && e.message || e)); })
+        .previewNotices({ type: type, activityId: dlg.ev.id });
+    }
+
+    function typeLabel(type) {
+      var hit = (dlg.ev.notices || []).filter(function (n) { return n.type === type; })[0];
+      return hit ? hit.label : type;
+    }
+
+    function showError(msg) {
+      dlg.busy = false;
+      dlgSet(typeLabel(dlg.type) + '：無法寄送', dlg.ev.name, [el('p', 'result-bad', msg)], [
+        { text: '返回', onClick: showTypePicker },
+        { text: '關閉', onClick: closeNotify }
+      ]);
+    }
+
+    function showPreview(p) {
+      dlg.busy = false;
+      if (!p || !p.ok) { showError((p && p.error) || '讀取失敗'); return; }
+      dlg.preview = p;
+      var label = typeLabel(p.type);
+      var nodes = [];
+      var n = p.recipients.length;
+      nodes.push(el('p', '', n ? '將寄出 ' + n + ' 封' + label + '（每封副本給協會信箱）。' : '目前沒有需要寄出' + label + '的對象。'));
+
+      if (p.warnings.length) {
+        var w = el('div', 'warn-box');
+        w.appendChild(el('strong', '', '⚠ 請先確認：'));
+        var ul = el('ul');
+        p.warnings.forEach(function (x) { ul.appendChild(el('li', '', x)); });
+        w.appendChild(ul);
+        nodes.push(w);
+      }
+      if (n) {
+        var det = el('details');
+        det.appendChild(el('summary', '', '收件人（' + n + ' 位）'));
+        var ul2 = el('ul', 'skip-list');
+        p.recipients.forEach(function (r) { ul2.appendChild(el('li', '', r.name + '　' + r.email)); });
+        det.appendChild(ul2);
+        nodes.push(det);
+      }
+      if (p.skipped.length) {
+        var det2 = el('details');
+        det2.appendChild(el('summary', '', '略過 ' + p.skipped.length + ' 位'));
+        var ul3 = el('ul', 'skip-list');
+        p.skipped.forEach(function (s) { ul3.appendChild(el('li', '', s.name + '：' + s.reason)); });
+        det2.appendChild(ul3);
+        nodes.push(det2);
+      }
+      if (p.sample) {
+        var det3 = el('details');
+        det3.appendChild(el('summary', '', '信件範例（' + p.sample.to + '）'));
+        det3.appendChild(el('div', 'sample', '主旨：' + p.sample.subject + '\n\n' + p.sample.body));
+        nodes.push(det3);
+      }
+      if (typeof p.quota === 'number') nodes.push(el('p', 'note', '今日剩餘寄信額度：' + p.quota + ' 位收件人'));
+
+      var buttons = [
+        { text: '返回', onClick: showTypePicker },
+        { text: '寄範例給自己', onClick: sendTest }
+      ];
+      if (n) buttons.push({ text: '確定寄出 ' + n + ' 封', cls: p.type === 'cancel' ? 'danger' : 'primary', onClick: doSend });
+      else buttons.push({ text: '關閉', onClick: closeNotify });
+      dlgSet(label, dlg.ev.name + '　' + dlg.ev.date, nodes, buttons);
+    }
+
+    function sendTest() {
+      dlgBusy('正在寄範例信…');
+      google.script.run
+        .withSuccessHandler(function (r) {
+          dlg.busy = false;
+          showPreview(dlg.preview);
+          document.getElementById('dlg-sub').textContent = r && r.ok ? '範例信已寄到 ' + r.to : '範例沒有寄出：' + ((r && r.error) || '未知錯誤');
+        })
+        .withFailureHandler(function (e) {
+          dlg.busy = false;
+          showPreview(dlg.preview);
+          document.getElementById('dlg-sub').textContent = '範例沒有寄出：' + String(e && e.message || e);
+        })
+        .sendTestNotice({ type: dlg.type, activityId: dlg.ev.id });
+    }
+
+    function doSend() {
+      var keys = dlg.preview.recipients.map(function (r) { return r.key; });
+      dlgBusy('寄送中，請勿關閉視窗…');
+      google.script.run
+        .withSuccessHandler(showResult)
+        .withFailureHandler(function (e) { showResult({ ok: false, error: String(e && e.message || e) }); })
+        .sendNotices({ type: dlg.type, activityId: dlg.ev.id, keys: keys });
+    }
+
+    function showResult(r) {
+      dlg.busy = false;
+      var label = typeLabel(dlg.type);
+      var nodes = [];
+      if (!r || !r.ok) {
+        nodes.push(el('p', 'result-bad', '寄送中斷：' + ((r && r.error) || '未知錯誤')));
+      } else {
+        if (r.sent) dlg.sentSomething = true;
+        nodes.push(el('p', 'result-ok', '已寄出 ' + r.sent + ' 封' + label + '。'));
+        if (r.failed.length) {
+          var w = el('div', 'warn-box');
+          w.appendChild(el('strong', '', '失敗 ' + r.failed.length + ' 封（詳見「寄信紀錄」）：'));
+          var ul = el('ul');
+          r.failed.forEach(function (f) { ul.appendChild(el('li', '', f.name + '：' + f.error)); });
+          w.appendChild(ul);
+          nodes.push(w);
+        }
+        if (r.remaining) nodes.push(el('p', 'note', '還有 ' + r.remaining + ' 封未寄（' + r.stopReason + '），請再按一次「寄信通知」。'));
+      }
+      dlgSet(label + '：寄送結果', dlg.ev.name, nodes, [{ text: '完成', cls: 'primary', onClick: closeNotify }]);
     }
 
     function render(data) {
@@ -289,6 +577,10 @@
     }
 
     document.getElementById('refresh').addEventListener('click', load);
+    document.getElementById('notify').addEventListener('cancel', function (e) {
+      e.preventDefault();
+      closeNotify();
+    });
     load();
   </script>
 </body>
