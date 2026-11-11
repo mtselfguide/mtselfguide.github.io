@@ -63,6 +63,13 @@ var REG_STATUS_OK       = '正常';
 var REG_STATUS_WAITLIST = '備取';
 var REG_STATUS_CANCEL   = '取消';
 
+/** 總覽卡片上「已通知」顯示的通知類型（type 與 notify.gs 的 NOTIFY_TYPES 相同）。 */
+var NOTICE_KINDS = [
+  { type: 'payment', label: '入帳通知' },
+  { type: 'pretrip', label: '行前通知' },
+  { type: 'cancel',  label: '流團通知' }
+];
+
 /** 「Email欄」沒填時，依序試這幾個標題（Google 表單自動收集 Email 的欄名）。 */
 var EMAIL_FALLBACK_HEADERS = ['電子郵件地址', 'Email Address', 'Email', '電子郵件'];
 
@@ -392,9 +399,11 @@ function buildOverview_(events, payments, now) {
             due: p.due, paid: p.paid, received: p.received,
             receivedDate: displayDate_(p.receivedDate), last5: p.last5,
             paymentNoticeSent: !!p.paymentNoticeSent, pretripSent: !!p.pretripSent,
+            cancelSent: !!p.cancelSent,
             note: p.note
           };
-        })
+        }),
+        notices: summarizeNotices_(rows)
       };
     })
     .sort(function (a, b) { return (a.sortTime - b.sortTime) || String(a.id).localeCompare(String(b.id)); });
@@ -405,6 +414,25 @@ function buildOverview_(events, payments, now) {
     totals.received += e.received; totals.outstanding += e.outstanding;
   });
   return { totals: totals, events: list };
+}
+
+
+/**
+ * 每種通知寄過幾人、最後一次什麼時候寄（只算有寄出時間的列）。
+ * 回傳 [{ type, label, sent, lastAt }]，順序固定，沒寄過的 sent 為 0。
+ */
+function summarizeNotices_(rows) {
+  return NOTICE_KINDS.map(function (k) {
+    var sent = 0, last = null;
+    rows.forEach(function (p) {
+      var v = p.sentAt ? p.sentAt[k.type] : '';
+      if (isBlank_(v)) return;
+      sent++;
+      var d = v instanceof Date ? v : new Date(v);
+      if (!isNaN(d) && (!last || d > last)) last = d;
+    });
+    return { type: k.type, label: k.label, sent: sent, lastAt: last ? displayDateTime_(last) : '' };
+  });
 }
 
 
@@ -466,6 +494,12 @@ function readPayments_() {
       receivedDate: r[c['入帳日期']],
       paymentNoticeSent: !isBlank_(r[c['入帳通知寄出時間']]),
       pretripSent: !isBlank_(r[c['行前通知寄出時間']]),
+      cancelSent: !isBlank_(r[c['流團通知寄出時間']]),
+      sentAt: {
+        payment: r[c['入帳通知寄出時間']],
+        pretrip: r[c['行前通知寄出時間']],
+        cancel: r[c['流團通知寄出時間']]
+      },
       note: String(r[c['備註']]),
       status: String(r[c['報名狀態']]).trim() || REG_STATUS_OK
     };
@@ -569,6 +603,11 @@ function displayDate_(v) {
     return v.getFullYear() + '/' + (v.getMonth() + 1) + '/' + v.getDate();
   }
   return String(v || '');
+}
+
+function displayDateTime_(d) {
+  var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+  return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
 }
 
 function startOfDay_(d) {

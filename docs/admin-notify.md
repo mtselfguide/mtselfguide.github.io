@@ -92,7 +92,8 @@
   }
   ```
 
-- 後台網頁可用 `google.script.run` 呼叫（`type` 為 `'payment'` 或 `'pretrip'`）：
+- 總覽網頁每張活動卡片的「寄信通知」按鈕就是用這三個函式（說明見 admin.md「從總覽網頁寄信通知」）。
+- 後台網頁可用 `google.script.run` 呼叫（`type` 為 `'payment'`、`'pretrip'` 或 `'cancel'`）：
   - `previewNotices({type, activityId, keys?})`：只預覽，回傳 `recipients`、`skipped`、`warnings`、`sample`、`quota`
   - `sendNotices({type, activityId, keys?})`：寄出，`keys` 可指定只寄給哪些報名鍵；回傳 `sent`、`failed`、`remaining`、`stopReason`
   - `sendTestNotice({type, activityId})`：寄範例給自己
