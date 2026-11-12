@@ -11,7 +11,7 @@
  *   onOpen()              → 試算表上方的「協會後台」選單（寄信項目由 notify.gs 加入）
  *   doGet()               → 報名與收費總覽網頁（Overview.html）
  *   getOverview()         → 給總覽網頁用的資料（先同步、再加總）
- *   assertAdmin_()        → 不在「管理員」名單就丟錯（notify.gs 也會呼叫）
+ *   assertAdmin_()        → 不在「管理員」名單就丟錯（notify.gs、insurance.gs 也會呼叫）
  *
  * 各課程的表單回覆試算表一律只讀不寫。
  * 同步時只會「新增報名者」和「更新姓名、Email、帳號後五碼」，
@@ -44,7 +44,8 @@ var EVENT_HEADERS = [
   '回覆試算表ID', '回覆工作表名稱', '梯次欄', '梯次值',
   '姓名欄', 'Email欄', '電話欄', '後五碼欄',
   '名額', 'LINE群組連結', '行前通知寄出時間', '狀態',
-  '成團人數', '報名截止', '方案欄', '方案價格', '負責教練Email', '取消原因'
+  '成團人數', '報名截止', '方案欄', '方案價格', '負責教練Email', '取消原因',
+  '保險名冊欄位'
 ];
 
 var ADMIN_HEADERS = ['Email', '備註'];
@@ -168,6 +169,10 @@ function getOverview() {
     assertAdmin_();
     var sync = syncRegistrations();
     var data = buildOverview_(readEvents_(), readPayments_().rows, new Date());
+    if (typeof insuranceLastSentAll_ === 'function') {
+      var ins = insuranceLastSentAll_();
+      data.events.forEach(function (e) { e.insurance = ins[e.id] || null; });
+    }
     data.ok = true;
     data.errors = sync.errors;
     data.generatedAt = new Date().toISOString();
@@ -337,7 +342,8 @@ function readResponses_(ev, cache) {
       phone: phoneCol === -1 ? '' : String(row[phoneCol] || '').trim(),
       plan: planCol === -1 ? '' : String(row[planCol] || '').trim(),
       last5: last5Col === -1 ? '' : normalizeLast5_(row[last5Col]),
-      due: due
+      due: due,
+      raw: row // 整列原始回覆，給 insurance.gs 讀身分證號、生日等欄位
     });
   }
   return out;
