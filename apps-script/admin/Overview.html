@@ -103,7 +103,8 @@
     .ntag { border-radius: 999px; padding: 2px 10px; background: #e6f1ea; color: var(--good); }
     .ntag.cancel { background: #f7e4e4; color: var(--bad); }
     .ntag.none { background: transparent; color: var(--muted); border: 1px dashed var(--line); }
-    .card-actions { display: flex; justify-content: flex-end; }
+    .card-actions { display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .card-actions .last { font-size: 12px; color: var(--muted); margin-right: auto; }
     .btn {
       border: 1px solid var(--forest);
       color: var(--forest);
@@ -124,6 +125,14 @@
       background: var(--card);
       box-shadow: 0 12px 40px rgba(0,0,0,.25);
     }
+    dialog.wide { width: min(1040px, calc(100vw - 32px)); }
+    .ins-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; margin-top: 10px; }
+    .ins-scroll table { margin-top: 0; }
+    .ins-scroll th { background: var(--paper); position: sticky; top: 0; }
+    .ins-scroll td.miss { background: #fdecec; }
+    .ins-scroll tr.flag td.memo { color: var(--warn); white-space: normal; min-width: 160px; }
+    .map-list { margin: 4px 0 0; padding-left: 20px; font-size: 13px; color: var(--muted); }
+    .map-list .miss { color: var(--bad); }
     dialog::backdrop { background: rgba(20, 28, 22, .45); }
     .dlg { display: flex; flex-direction: column; max-height: calc(100vh - 48px); }
     .dlg-head { padding: 14px 16px; border-bottom: 1px solid var(--line); }
@@ -282,6 +291,13 @@
       var sendBtn = el('button', 'btn', '寄信通知');
       sendBtn.type = 'button';
       sendBtn.addEventListener('click', function () { openNotify(ev); });
+      if (ev.insurance) {
+        actions.appendChild(el('span', 'last', '保險名冊已寄 ' + ev.insurance.count + ' 人（' + ev.insurance.at + '）'));
+      }
+      var insBtn = el('button', 'btn', '寄保險名冊');
+      insBtn.type = 'button';
+      insBtn.addEventListener('click', function () { openInsurance(ev); });
+      actions.appendChild(insBtn);
       actions.appendChild(sendBtn);
       c.appendChild(actions);
 
@@ -386,7 +402,14 @@
       if (dlg.sentSomething) { dlg.sentSomething = false; load(); }
     }
 
+    function showDialog(wide) {
+      var d = dlg.node();
+      d.classList.toggle('wide', !!wide);
+      if (!d.open) { if (typeof d.showModal === 'function') d.showModal(); else d.setAttribute('open', ''); }
+    }
+
     function openNotify(ev) {
+      dlg.node().classList.remove('wide');
       dlg.ev = ev;
       dlg.type = null;
       dlg.preview = null;
@@ -543,6 +566,117 @@
         if (r.remaining) nodes.push(el('p', 'note', '還有 ' + r.remaining + ' 封未寄（' + r.stopReason + '），請再按一次「寄信通知」。'));
       }
       dlgSet(label + '：寄送結果', dlg.ev.name, nodes, [{ text: '完成', cls: 'primary', onClick: closeNotify }]);
+    }
+
+    /* ── 寄保險名冊 ───────────────────────────── */
+
+    var ins = { preview: null };
+
+    function openInsurance(ev) {
+      dlg.ev = ev;
+      ins.preview = null;
+      dlgSet('保險名冊', ev.name + '　' + ev.date, [el('p', 'note', '正在整理已繳費名單…')], []);
+      showDialog(true);
+      dlgBusy('正在整理已繳費名單…');
+      google.script.run
+        .withSuccessHandler(showInsurance)
+        .withFailureHandler(function (e) { insuranceError(String(e && e.message || e)); })
+        .previewInsuranceRoster({ activityId: ev.id });
+    }
+
+    function insuranceError(msg) {
+      dlg.busy = false;
+      dlgSet('保險名冊：無法寄送', dlg.ev.name, [el('p', 'result-bad', msg)], [{ text: '關閉', onClick: closeNotify }]);
+    }
+
+    function showInsurance(p) {
+      dlg.busy = false;
+      if (!p || !p.ok) { insuranceError((p && p.error) || '讀取失敗'); return; }
+      ins.preview = p;
+      var n = p.rows.length;
+      var nodes = [];
+      var head = n ? '已繳費 ' + n + ' 位' : '目前沒有已入帳的報名者';
+      if (p.unpaid) head += '（另有 ' + p.unpaid + ' 位尚未入帳，不列入）';
+      nodes.push(el('p', '', head + '。'));
+      nodes.push(el('p', 'note', p.to.length
+        ? '確認後寄給負責教練：' + p.to.join('、') + '（名冊含身分證號，不副本協會信箱；信件附 CSV 檔）'
+        : '「活動設定」的「負責教練Email」還沒填，不能寄出。'));
+      if (p.lastSent) nodes.push(el('p', 'note', '上次寄出：' + p.lastSent.at + '，' + p.lastSent.count + ' 人。'));
+
+      if (p.warnings.length) {
+        var w = el('div', 'warn-box');
+        w.appendChild(el('strong', '', '⚠ 請先確認：'));
+        var ul = el('ul');
+        p.warnings.forEach(function (x) { ul.appendChild(el('li', '', x)); });
+        w.appendChild(ul);
+        nodes.push(w);
+      }
+
+      if (n) {
+        var hasMemo = p.rows.some(function (r) { return r.notes.length; });
+        var wrap = el('div', 'ins-scroll');
+        var tb = el('table');
+        var hr = el('tr');
+        hr.appendChild(el('th', '', '#'));
+        p.fields.forEach(function (f) { hr.appendChild(el('th', '', f === '出生日期' ? '出生日期(民國)' : f)); });
+        if (hasMemo) hr.appendChild(el('th', '', '需確認'));
+        var thead = el('thead'); thead.appendChild(hr); tb.appendChild(thead);
+        var body = el('tbody');
+        p.rows.forEach(function (r, i) {
+          var tr = el('tr', r.notes.length ? 'flag' : '');
+          tr.appendChild(el('td', 'num', String(i + 1)));
+          r.values.forEach(function (v, j) {
+            var f = p.fields[j];
+            var mono = f === '身分證號' || f === '出生日期' || f === '電話' || f === '聯絡人電話';
+            tr.appendChild(el('td', (mono ? 'num' : '') + (v ? '' : ' miss'), v || '—'));
+          });
+          if (hasMemo) tr.appendChild(el('td', 'memo', r.notes.join('；')));
+          body.appendChild(tr);
+        });
+        tb.appendChild(body);
+        wrap.appendChild(tb);
+        nodes.push(wrap);
+      }
+
+      var det = el('details');
+      det.style.marginTop = '10px';
+      det.appendChild(el('summary', '', '欄位對應（從表單哪一題讀）'));
+      var ml = el('ul', 'map-list');
+      p.mapping.forEach(function (m) {
+        ml.appendChild(el('li', m.header ? '' : 'miss', m.field + ' ← ' + (m.header || '找不到')));
+      });
+      det.appendChild(ml);
+      nodes.push(det);
+
+      if (p.skipped.length) {
+        var det2 = el('details');
+        det2.appendChild(el('summary', '', '未列入 ' + p.skipped.length + ' 位'));
+        var ul3 = el('ul', 'skip-list');
+        p.skipped.forEach(function (s) { ul3.appendChild(el('li', '', s.name + '：' + s.reason)); });
+        det2.appendChild(ul3);
+        nodes.push(det2);
+      }
+
+      var buttons = [{ text: '取消', onClick: closeNotify }];
+      if (n && p.to.length) buttons.push({ text: '確認寄給教練（' + n + ' 人）', cls: 'primary', onClick: sendInsurance });
+      dlgSet('保險名冊', p.event.name + '　' + p.event.date, nodes, buttons);
+    }
+
+    function sendInsurance() {
+      var keys = ins.preview.rows.map(function (r) { return r.key; });
+      dlgBusy('寄送中，請勿關閉視窗…');
+      google.script.run
+        .withSuccessHandler(function (r) {
+          dlg.busy = false;
+          if (!r || !r.ok) { insuranceError((r && r.error) || '寄送失敗'); return; }
+          dlg.sentSomething = true;
+          dlgSet('保險名冊：已寄出', dlg.ev.name, [
+            el('p', 'result-ok', '已把 ' + r.count + ' 人的保險名冊寄給 ' + r.to.join('、') + '。'),
+            el('p', 'note', '紀錄已寫進「寄信紀錄」，類型為「保險名冊」。')
+          ], [{ text: '完成', cls: 'primary', onClick: closeNotify }]);
+        })
+        .withFailureHandler(function (e) { insuranceError(String(e && e.message || e)); })
+        .sendInsuranceRoster({ activityId: dlg.ev.id, keys: keys });
     }
 
     function render(data) {
