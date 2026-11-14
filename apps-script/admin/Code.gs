@@ -11,7 +11,9 @@
  *   onOpen()              → 試算表上方的「協會後台」選單（寄信項目由 notify.gs 加入）
  *   doGet()               → 報名與收費總覽網頁（Overview.html）
  *   getOverview()         → 給總覽網頁用的資料（先同步、再加總）
- *   assertAdmin_()        → 不在「管理員」名單就丟錯（notify.gs、insurance.gs 也會呼叫）
+ *   assertAdmin_()        → 不在「管理員」名單就丟錯（notify.gs、insurance.gs、reconcile.gs 也會呼叫）
+ *
+ * 總覽網頁的「對帳」表單在 reconcile.gs，寫回下面「繳費狀態」的已入帳、入帳金額、入帳日期。
  *
  * 各課程的表單回覆試算表一律只讀不寫。
  * 同步時只會「新增報名者」和「更新姓名、Email、帳號後五碼」，

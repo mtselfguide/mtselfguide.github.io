@@ -133,6 +133,23 @@
     .ins-scroll tr.flag td.memo { color: var(--warn); white-space: normal; min-width: 160px; }
     .map-list { margin: 4px 0 0; padding-left: 20px; font-size: 13px; color: var(--muted); }
     .map-list .miss { color: var(--bad); }
+    .rec-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; font-size: 13px; color: var(--muted); }
+    .rec-tools label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+    .rec-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; margin-top: 10px; }
+    .rec-scroll table { margin-top: 0; }
+    .rec-scroll th { background: var(--paper); }
+    .rec-scroll td { vertical-align: middle; }
+    .rec-scroll input[type=text], .rec-scroll input[type=date] {
+      font: inherit; font-size: 13px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; background: #fff; color: var(--ink);
+    }
+    .rec-scroll input.amt { width: 88px; text-align: right; }
+    .rec-scroll input.bad { border-color: var(--bad); background: #fdecec; }
+    .rec-scroll input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--good); cursor: pointer; }
+    .rec-scroll tr.changed td { background: #fffbe8; }
+    .rec-scroll tr.done td.who { color: var(--good); }
+    .rec-scroll .sub { display: block; font-size: 11.5px; color: var(--muted); }
+    .rec-scroll .hint { display: block; font-size: 11.5px; color: var(--warn); white-space: normal; }
+    .rec-scroll .last5 { font-size: 15px; font-weight: 600; letter-spacing: .05em; }
     dialog::backdrop { background: rgba(20, 28, 22, .45); }
     .dlg { display: flex; flex-direction: column; max-height: calc(100vh - 48px); }
     .dlg-head { padding: 14px 16px; border-bottom: 1px solid var(--line); }
@@ -294,6 +311,10 @@
       if (ev.insurance) {
         actions.appendChild(el('span', 'last', '保險名冊已寄 ' + ev.insurance.count + ' 人（' + ev.insurance.at + '）'));
       }
+      var recBtn = el('button', 'btn', '對帳');
+      recBtn.type = 'button';
+      recBtn.addEventListener('click', function () { openReconcile(ev); });
+      actions.appendChild(recBtn);
       var insBtn = el('button', 'btn', '寄保險名冊');
       insBtn.type = 'button';
       insBtn.addEventListener('click', function () { openInsurance(ev); });
@@ -677,6 +698,224 @@
         })
         .withFailureHandler(function (e) { insuranceError(String(e && e.message || e)); })
         .sendInsuranceRoster({ activityId: dlg.ev.id, keys: keys });
+    }
+
+    /* ── 對帳 ─────────────────────────────────── */
+
+    var rec = { data: null, hidePaid: false };
+
+    function openReconcile(ev) {
+      dlg.ev = ev;
+      rec.data = null;
+      dlgSet('對帳', ev.name + '　' + ev.date, [el('p', 'note', '正在讀取報名名單…')], []);
+      showDialog(true);
+      dlgBusy('正在讀取報名名單…');
+      google.script.run
+        .withSuccessHandler(showReconcile)
+        .withFailureHandler(function (e) { reconcileError(String(e && e.message || e)); })
+        .getReconcileList({ activityId: ev.id });
+    }
+
+    function reconcileError(msg) {
+      dlg.busy = false;
+      dlgSet('對帳：發生錯誤', dlg.ev.name, [el('p', 'result-bad', msg)], [{ text: '關閉', onClick: closeNotify }]);
+    }
+
+    function fmt(n) { return Math.round(n || 0).toLocaleString('en-US'); }
+    function amountOf(s) {
+      var t = String(s || '').replace(/[０-９]/g, function (d) { return String.fromCharCode(d.charCodeAt(0) - 0xfee0); }).replace(/[,，\s]/g, '');
+      if (!t) return '';
+      return /^\d+(\.\d+)?$/.test(t) && Number(t) > 0 ? Number(t) : NaN;
+    }
+
+    function showReconcile(p) {
+      dlg.busy = false;
+      if (!p || !p.ok) { reconcileError((p && p.error) || '讀取失敗'); return; }
+      rec.data = p;
+      p.rows.forEach(function (r) { r.edit = { paid: r.paid, amount: r.amount === '' ? '' : String(r.amount), date: r.date }; });
+      drawReconcile();
+    }
+
+    function rowChanged(r) {
+      var a = amountOf(r.edit.amount);
+      var was = r.amount === '' ? '' : Number(r.amount);
+      return r.edit.paid !== r.paid || r.edit.date !== r.date || a !== was; // NaN 也算變更
+    }
+
+    function rowProblem(r) {
+      var a = amountOf(r.edit.amount);
+      if (a !== a) return '金額要是大於 0 的數字';
+      if (r.edit.date && r.edit.date > rec.data.today) return '日期不能晚於今天';
+      if (r.edit.paid && a === '') return '請填入帳金額';
+      if (r.edit.paid && !r.edit.date) return '請填入帳日期';
+      return '';
+    }
+
+    function drawReconcile() {
+      var p = rec.data;
+      var nodes = [];
+      var unpaid = p.rows.filter(function (r) { return !r.paid; }).length;
+      nodes.push(el('p', 'note', '對照銀行明細的帳號後五碼，填入實際入帳金額與日期，勾「確認入帳」後按儲存，會寫回「繳費狀態」。目前未入帳 ' + unpaid + ' / ' + p.rows.length + ' 人（不含已取消）。'));
+
+      var tools = el('div', 'rec-tools');
+      var hideLab = el('label');
+      var hide = el('input');
+      hide.type = 'checkbox';
+      hide.checked = rec.hidePaid;
+      hide.addEventListener('change', function () { rec.hidePaid = hide.checked; drawReconcile(); });
+      hideLab.appendChild(hide);
+      hideLab.appendChild(document.createTextNode('隱藏已入帳'));
+      tools.appendChild(hideLab);
+      nodes.push(tools);
+
+      var rows = p.rows.filter(function (r) { return !(rec.hidePaid && r.paid && !rowChanged(r)); });
+      if (!p.rows.length) {
+        nodes.push(el('p', 'empty', '這個活動還沒有報名者。'));
+      } else if (!rows.length) {
+        nodes.push(el('p', 'empty', '全部都已入帳 🎉'));
+      } else {
+        var wrap = el('div', 'rec-scroll');
+        var tb = el('table');
+        var hr = el('tr');
+        [['姓名', ''], ['後五碼', ''], ['應繳', 'r'], ['入帳金額', ''], ['入帳日期', ''], ['確認入帳', '']].forEach(function (h) { hr.appendChild(el('th', h[1], h[0])); });
+        var thead = el('thead'); thead.appendChild(hr); tb.appendChild(thead);
+        var body = el('tbody');
+        rows.forEach(function (r) { body.appendChild(reconcileRow(r)); });
+        tb.appendChild(body);
+        wrap.appendChild(tb);
+        nodes.push(wrap);
+      }
+      var footNote = el('p', 'note', '');
+      footNote.id = 'rec-count';
+      footNote.style.marginTop = '10px';
+      nodes.push(footNote);
+
+      dlgSet('對帳', p.event.name + '　' + p.event.date, nodes, [
+        { text: '取消', onClick: closeNotify },
+        { text: '儲存對帳', cls: 'primary', onClick: saveReconcileClick }
+      ]);
+      updateReconcileFoot();
+    }
+
+    function reconcileRow(r) {
+      var tr = el('tr', r.paid ? 'done' : '');
+      var who = el('td', 'who');
+      who.appendChild(document.createTextNode(r.name || r.email));
+      var subText = r.status !== '正常' ? r.status : '';
+      if (r.paid) subText = (subText ? subText + '・' : '') + '已入帳' + (r.noticeSent ? '・已寄入帳通知' : '');
+      if (subText) who.appendChild(el('span', 'sub', subText));
+      tr.appendChild(who);
+      tr.appendChild(el('td', 'num last5', r.last5 || '—'));
+      tr.appendChild(el('td', 'r num', r.due ? fmt(r.due) : '—'));
+
+      var hint = el('span', 'hint');
+      var amtTd = el('td');
+      var amt = el('input', 'amt num');
+      amt.type = 'text';
+      amt.inputMode = 'numeric';
+      amt.placeholder = r.due ? fmt(r.due) : '金額';
+      amt.value = r.edit.amount;
+      amtTd.appendChild(amt);
+      tr.appendChild(amtTd);
+
+      var dateTd = el('td');
+      var date = el('input', 'num');
+      date.type = 'date';
+      date.max = rec.data.today;
+      date.value = r.edit.date;
+      dateTd.appendChild(date);
+      tr.appendChild(dateTd);
+
+      var okTd = el('td');
+      var ok = el('input');
+      ok.type = 'checkbox';
+      ok.checked = r.edit.paid;
+      ok.setAttribute('aria-label', '確認 ' + (r.name || r.email) + ' 已入帳');
+      okTd.appendChild(ok);
+      okTd.appendChild(hint);
+      tr.appendChild(okTd);
+
+      function refresh() {
+        var problem = rowProblem(r);
+        var a = amountOf(r.edit.amount);
+        amt.classList.toggle('bad', a !== a || (r.edit.paid && a === ''));
+        date.classList.toggle('bad', (r.edit.paid && !r.edit.date) || (!!r.edit.date && r.edit.date > rec.data.today));
+        var msg = problem;
+        if (!msg && r.edit.paid && a !== '' && r.due && a !== r.due) msg = '與應繳差 ' + fmt(a - r.due);
+        if (!msg && r.paid && !r.edit.paid && r.noticeSent) msg = '入帳通知已寄出';
+        hint.textContent = msg;
+        tr.classList.toggle('changed', rowChanged(r));
+        updateReconcileFoot();
+      }
+      amt.addEventListener('input', function () { r.edit.amount = amt.value.trim(); refresh(); });
+      date.addEventListener('input', function () { r.edit.date = date.value; refresh(); });
+      date.addEventListener('change', function () { r.edit.date = date.value; refresh(); });
+      ok.addEventListener('change', function () { r.edit.paid = ok.checked; refresh(); });
+      refresh();
+      return tr;
+    }
+
+    function updateReconcileFoot() {
+      if (!rec.data) return;
+      var changed = rec.data.rows.filter(rowChanged);
+      var bad = changed.filter(function (r) { return rowProblem(r); });
+      var note = document.getElementById('rec-count');
+      if (note) {
+        note.textContent = !changed.length ? '還沒有變更。'
+          : '將儲存 ' + changed.length + ' 筆變更' + (bad.length ? '，其中 ' + bad.length + ' 筆還要修正（標紅的欄位）' : '') + '。';
+      }
+      var btn = document.getElementById('dlg-foot').querySelector('.primary');
+      if (btn && !dlg.busy) btn.disabled = !changed.length || bad.length > 0;
+    }
+
+    function saveReconcileClick() {
+      var changed = rec.data.rows.filter(rowChanged);
+      if (!changed.length || changed.some(rowProblem)) return;
+      var items = changed.map(function (r) {
+        return {
+          key: r.key,
+          paid: r.edit.paid,
+          amount: r.edit.amount,
+          date: r.edit.date,
+          was: { paid: r.paid, amount: r.amount, date: r.date }
+        };
+      });
+      dlgBusy('正在寫回試算表…');
+      google.script.run
+        .withSuccessHandler(showReconcileResult)
+        .withFailureHandler(function (e) { reconcileError(String(e && e.message || e)); })
+        .saveReconcile({ activityId: dlg.ev.id, items: items });
+    }
+
+    function listBox(title, list, cls) {
+      var w = el('div', cls || 'warn-box');
+      w.appendChild(el('strong', '', title));
+      var ul = el('ul');
+      list.forEach(function (x) { ul.appendChild(el('li', '', typeof x === 'string' ? x : x.name + '：' + x.reason)); });
+      w.appendChild(ul);
+      return w;
+    }
+
+    function showReconcileResult(r) {
+      dlg.busy = false;
+      if (!r || !r.ok) { reconcileError((r && r.error) || '儲存失敗'); return; }
+      if (r.saved) dlg.sentSomething = true; // 關閉時重新整理總覽
+      var nodes = [];
+      var parts = ['已儲存 ' + r.saved + ' 筆'];
+      if (r.confirmed) parts.push('新確認入帳 ' + r.confirmed + ' 人');
+      if (r.unconfirmed) parts.push('取消入帳 ' + r.unconfirmed + ' 人');
+      nodes.push(el('p', r.saved ? 'result-ok' : 'result-bad', parts.join('，') + '。'));
+      if (r.conflicts.length) nodes.push(listBox('⚠ ' + r.conflicts.length + ' 筆沒有存（有人同時改過，請重新打開對帳再確認）：', r.conflicts));
+      if (r.errors.length) nodes.push(listBox('⚠ ' + r.errors.length + ' 筆沒有存：', r.errors));
+      if (r.warnings.length) nodes.push(listBox('請留意：', r.warnings));
+      if (r.confirmed) nodes.push(el('p', 'note', '入帳通知不會自動寄出。可以按「寄入帳通知」先預覽收件人，確認後再寄。'));
+
+      var buttons = [
+        { text: '繼續對帳', onClick: function () { openReconcile(dlg.ev); } }
+      ];
+      if (r.confirmed) buttons.push({ text: '寄入帳通知', onClick: function () { dlg.type = 'payment'; loadPreview('payment'); } });
+      buttons.push({ text: '完成', cls: 'primary', onClick: closeNotify });
+      dlgSet('對帳：儲存結果', dlg.ev.name + '　' + dlg.ev.date, nodes, buttons);
     }
 
     function render(data) {
