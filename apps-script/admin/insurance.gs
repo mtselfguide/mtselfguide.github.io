@@ -7,7 +7,7 @@
  *   1. previewInsuranceRoster({activityId})  → 整理「已入帳」且報名狀態「正常」的報名者，回傳表格給網頁預覽
  *   2. sendInsuranceRoster({activityId, keys}) → 管理員按確認後，把名冊寄給該活動「負責教練Email」
  *
- * 名冊欄位：姓名、性別、身分證號、出生日期（民國）、電話、地址、聯絡人、聯絡人電話、E-mail
+ * 名冊欄位：姓名、性別、身分證號、出生日期（民國）、電話、地址、E-mail、聯絡人、聯絡人電話
  *   ・姓名、E-mail 用「繳費狀態」的資料；其他從該活動的表單回覆表讀（只讀不寫）。
  *   ・回覆表的欄位會自動依標題找（例如「身分證字號」「出生年月日」「緊急聯絡人電話」）。
  *     找錯或找不到時，在「活動設定」的「保險名冊欄位」填對應，例如：
@@ -35,7 +35,7 @@ var INSURANCE_SUBJECT = '【保險名冊】{活動名稱}（{活動日期}，共
 var INSURANCE_LOG_TYPE = '保險名冊';
 
 /** 名冊欄位（順序就是表格欄位順序）。 */
-var INSURANCE_FIELDS = ['姓名', '性別', '身分證號', '出生日期', '電話', '地址', '聯絡人', '聯絡人電話', 'E-mail'];
+var INSURANCE_FIELDS = ['姓名', '性別', '身分證號', '出生日期', '電話', '地址', 'E-mail', '聯絡人', '聯絡人電話'];
 
 /** 在回覆表找欄位用的規則：exact 先比完全相同，再用 any（含任一）且不含 none 的第一欄。 */
 var INSURANCE_GUESS = {
@@ -167,9 +167,9 @@ function insuranceBuild_(activityId) {
         '出生日期': birth.text,
         '電話': cell('電話') || reg.phone,
         '地址': cell('地址'),
+        'E-mail': p.email || reg.email,
         '聯絡人': cell('聯絡人'),
-        '聯絡人電話': cell('聯絡人電話'),
-        'E-mail': p.email || reg.email
+        '聯絡人電話': cell('聯絡人電話')
       },
       notes: []
     };
