@@ -616,7 +616,9 @@
       ins.preview = p;
       var n = p.rows.length;
       var nodes = [];
-      var head = n ? '已繳費 ' + n + ' 位' : '目前沒有已入帳的報名者';
+      var nc = p.coachCount || 0;
+      var head = n - nc ? '已繳費 ' + (n - nc) + ' 位' : '目前沒有已入帳的報名者';
+      if (nc) head += '，加上教練 ' + nc + ' 位';
       if (p.unpaid) head += '（另有 ' + p.unpaid + ' 位尚未入帳，不列入）';
       nodes.push(el('p', '', head + '。'));
       nodes.push(el('p', 'note', p.to.length
