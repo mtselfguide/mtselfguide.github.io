@@ -1,7 +1,18 @@
 # 報名後台：入帳通知、行前通知與流團通知
 
 程式：`apps-script/admin/notify.gs`，跟後台主程式放在同一個 Apps Script 專案（綁在「報名後台」試算表）。
-信件一律由部署 Apps Script 的協會 Workspace 帳號寄出（GmailApp，每日約 1,500 位收件人）。
+信件由部署 Apps Script 的協會 Workspace 帳號寄出（GmailApp，每日約 1,500 位收件人），寄件者顯示為 `services@mtselfguide.com`（`notify.gs` 的 `NOTIFY_FROM`，入帳、行前／入群、流團通知與範例信都適用）。
+
+### 寄件者設定（一次性）
+
+Apps Script 只能用「執行帳號本身」或「它在 Gmail 已驗證的別名」寄信。若部署帳號不是 `services@mtselfguide.com`：
+
+1. 用部署帳號登入 Gmail →「設定（齒輪）→ 查看所有設定 →『帳戶』分頁 →『以這個地址寄送郵件』→ 新增其他電子郵件地址」。
+2. 名稱填「台灣自主登山能力推廣協會」，地址填 `services@mtselfguide.com`，勾選「視為別名」。
+   - `services@` 若是同網域的使用者或群組，Workspace 通常直接加入；否則會寄驗證信到 `services@`，請到該信箱點連結確認。
+3. 回到 Apps Script 編輯器重新部署一次（或執行任一函式重新授權）。
+
+沒設好之前，按寄信或寄範例會直接出現「還沒把 services@mtselfguide.com 設成別名」的錯誤，不會改用別的地址寄出。若想改回用部署帳號本身寄，把 `NOTIFY_FROM` 清成 `''`。
 
 ## 會用到的工作表
 
