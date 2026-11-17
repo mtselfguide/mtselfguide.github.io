@@ -119,7 +119,8 @@ function installHourlySync() {
 function onOpen() {
   var menu = SpreadsheetApp.getUi().createMenu('協會後台')
     .addItem('同步報名資料', 'menuSync')
-    .addItem('開啟總覽網頁', 'menuOpenOverview');
+    .addItem('開啟總覽網頁', 'menuOpenOverview')
+    .addItem('設定總覽網址…', 'menuSetOverviewUrl');
   if (typeof addNotifyMenuItems_ === 'function') {
     menu.addSeparator();
     addNotifyMenuItems_(menu);
@@ -141,11 +142,77 @@ function menuSync() {
 }
 
 function menuOpenOverview() {
-  var url = ScriptApp.getService().getUrl();
+  var url = overviewUrl_();
   var html = url
     ? '<p style="font:14px sans-serif">總覽網頁：<a href="' + url + '" target="_blank">開啟</a></p>'
-    : '<p style="font:14px sans-serif">還沒部署成網頁應用程式，請照 docs/admin.md 第 6 步部署。</p>';
-  SpreadsheetApp.getUi().showModalDialog(HtmlService.createHtmlOutput(html).setWidth(320).setHeight(90), '報名與收費總覽');
+    : '<p style="font:14px sans-serif">還沒設定總覽網址。請先照 docs/admin.md 第 6 步部署，再按「協會後台 → 設定總覽網址…」貼上 /exec 結尾的網址。</p>';
+  SpreadsheetApp.getUi().showModalDialog(HtmlService.createHtmlOutput(html).setWidth(360).setHeight(110), '報名與收費總覽');
+}
+
+/** 選單「設定總覽網址…」：把部署作業的 /exec 網址存起來，給選單和教練通知信用。 */
+function menuSetOverviewUrl() {
+  var ui = SpreadsheetApp.getUi();
+  var props = PropertiesService.getScriptProperties();
+  var current = props.getProperty(PROP_OVERVIEW_URL) || '（尚未設定）';
+  var res = ui.prompt('設定總覽網址',
+    '目前：' + current + '\n\n' +
+    '到編輯器「部署 → 管理部署作業」，複製「網頁應用程式」那一行 /exec 結尾的網址貼在下面。\n' +
+    '（不要用「測試部署作業」的 /dev 網址，那個只有程式編輯者打得開。）',
+    ui.ButtonSet.OK_CANCEL);
+  if (res.getSelectedButton() !== ui.Button.OK) return;
+  var raw = res.getResponseText().trim();
+  if (/\/dev(\?|#|$)/.test(raw)) {
+    ui.alert('這是 /dev 測試網址', '/dev 只有程式編輯者能開，教練點了會打不開。請改貼「管理部署作業」裡 /exec 結尾的網址。', ui.ButtonSet.OK);
+    return;
+  }
+  var url = normalizeOverviewUrl_(raw);
+  if (!url) {
+    ui.alert('網址格式不對', '應該長得像：\nhttps://script.google.com/a/macros/你的網域/s/……/exec', ui.ButtonSet.OK);
+    return;
+  }
+  props.setProperty(PROP_OVERVIEW_URL, url);
+  ui.alert('已儲存', '之後選單和新報名通知信都會用：\n' + url, ui.ButtonSet.OK);
+}
+
+
+/* ── 總覽網址 ─────────────────────────────────────────────────── */
+
+var PROP_OVERVIEW_URL = 'OVERVIEW_URL';
+
+/**
+ * 總覽網頁的正式網址（/exec），給選單與通知信用；拿不到可靠網址就回傳 ''。
+ *
+ * 不能直接用 ScriptApp.getService().getUrl()：在觸發器（每小時同步）或編輯器裡執行時，
+ * 它常回傳 /dev 測試網址，只有程式編輯者打得開，教練點了會顯示無法開啟。
+ * 所以以「設定總覽網址…」存的網址為準；沒設定時，getUrl() 剛好是 /exec 才用。
+ */
+function overviewUrl_() {
+  var saved = '';
+  try { saved = PropertiesService.getScriptProperties().getProperty(PROP_OVERVIEW_URL) || ''; } catch (e) { /* 忽略 */ }
+  var url = normalizeOverviewUrl_(saved);
+  if (url) return url;
+  var auto = '';
+  try { auto = ScriptApp.getService().getUrl() || ''; } catch (e) { /* 還沒部署成網頁 */ }
+  return normalizeOverviewUrl_(auto);
+}
+
+/**
+ * 只接受 /exec 網址，去掉 ?…、#…；並換成 /a/macros/<網域>/ 的形式，
+ * 這樣瀏覽器同時登入私人 Gmail 和協會帳號時，Google 會直接用協會帳號開，
+ * 不會卡在「目前無法開啟檔案」。不合格回傳 ''。
+ */
+function normalizeOverviewUrl_(raw) {
+  var m = String(raw || '').trim()
+    .match(/^https:\/\/script\.google\.com\/(?:a\/macros\/([^\/?#]+)|macros)\/s\/([A-Za-z0-9_-]+)\/exec(?:[?#].*)?$/);
+  if (!m) return '';
+  var domain = m[1] || '';
+  if (!domain) {
+    var owner = '';
+    try { owner = String(Session.getEffectiveUser().getEmail() || ''); } catch (e) { /* 忽略 */ }
+    var d = owner.split('@')[1] || '';
+    if (d && d.toLowerCase() !== 'gmail.com') domain = d.toLowerCase();
+  }
+  return 'https://script.google.com/' + (domain ? 'a/macros/' + domain : 'macros') + '/s/' + m[2] + '/exec';
 }
 
 

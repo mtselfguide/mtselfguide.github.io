@@ -39,8 +39,7 @@ function notifyCoachesOfNewRegistrations_(fresh, existingRows) {
   var result = { sent: 0, errors: [] };
   var operator = coachOperator_();
   var quota = MailApp.getRemainingDailyQuota();
-  var overviewUrl = '';
-  try { overviewUrl = ScriptApp.getService().getUrl() || ''; } catch (e) { /* 還沒部署成網頁 */ }
+  var overviewUrl = overviewUrl_();
 
   fresh.forEach(function (item) {
     var ev = item.event;
@@ -118,7 +117,7 @@ function buildCoachMail_(ev, regs, info) {
     .concat(rows.map(function (c) {
       return heads.map(function (h, i) { return h + '：' + (c[i] || '—'); }).slice(1).join('｜');
     }))
-    .concat(info.overviewUrl ? ['', '完整名單與繳費狀況：' + info.overviewUrl] : [])
+    .concat(info.overviewUrl ? ['', '完整名單與繳費狀況：' + info.overviewUrl, '（請用協會 Google 帳號開啟）'] : [])
     .concat(['', '（這封信由報名後台自動寄出，報名者若尚未繳費，入帳後會另外收到付款完成通知。）'])
     .join('\n');
 
@@ -133,7 +132,8 @@ function buildCoachMail_(ev, regs, info) {
       return '<tr>' + c.map(function (v) { return '<td ' + td + '>' + coachEsc_(v || '—') + '</td>'; }).join('') + '</tr>';
     }).join('') +
     '</table>' +
-    (info.overviewUrl ? '<p>完整名單與繳費狀況：<a href="' + coachEsc_(info.overviewUrl) + '">報名與收費總覽</a></p>' : '') +
+    (info.overviewUrl ? '<p>完整名單與繳費狀況：<a href="' + coachEsc_(info.overviewUrl) + '">報名與收費總覽</a>' +
+      '<br><span style="color:#777;font-size:12px">請用協會 Google 帳號開啟</span></p>' : '') +
     '<p style="color:#777;font-size:12px">這封信由報名後台自動寄出，報名者若尚未繳費，入帳後會另外收到付款完成通知。</p>' +
     '</div>';
 
@@ -150,8 +150,7 @@ function sendTestCoachMail_(activityId) {
     if (!ev) return { ok: false, error: '找不到活動ID「' + activityId + '」' };
     var me = coachOperator_();
     if (me.indexOf('@') === -1) return { ok: false, error: '抓不到你的 Email' };
-    var url = '';
-    try { url = ScriptApp.getService().getUrl() || ''; } catch (e) { /* 還沒部署成網頁 */ }
+    var url = overviewUrl_();
     var mail = buildCoachMail_(ev, [{
       submittedAt: new Date(), name: '王小明', phone: '0912-345-678', email: 'sample@example.com',
       plan: ev.planCol ? '範例方案' : '', last5: '12345', due: ev.fee
@@ -163,6 +162,7 @@ function sendTestCoachMail_(activityId) {
     var note = ev.coachEmails.length
       ? '正式通知會寄給：' + ev.coachEmails.join('、')
       : '⚠ 這個活動的「負責教練Email」還沒填，正式通知不會寄出。';
+    if (!url) note += '\n⚠ 還沒設定總覽網址，信裡不會有「報名與收費總覽」連結。請按「協會後台 → 設定總覽網址…」。';
     return { ok: true, message: '範例信已寄到 ' + me + '\n' + note };
   } catch (e) {
     return { ok: false, error: String(e && e.message || e) };
