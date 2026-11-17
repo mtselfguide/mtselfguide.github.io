@@ -35,7 +35,10 @@ var NOTIFY_SENDER_NAME = '台灣自主登山能力推廣協會';
  */
 var NOTIFY_FROM = 'services@mtselfguide.com';
 
-/** 收件人按「回覆」時寄到哪裡；留空 = 回覆給寄件帳號本身。 */
+/**
+ * 收件人按「回覆」時寄到哪裡：一律用該活動「活動設定」的「負責教練Email」（多位就全部列入）。
+ * 這個活動沒填教練時才改用這裡；這裡也留空 = 回覆給寄件者（NOTIFY_FROM）。
+ */
 var NOTIFY_REPLY_TO = '';
 
 /** 每一封正式寄出的通知都副本給這個信箱（寄給自己的範例信不副本）；留空 = 不副本。 */
@@ -322,7 +325,7 @@ function sendNotices(req) {
           GmailApp.sendEmail(mail.to, mail.subject, mail.body, {
             from: from,
             name: NOTIFY_SENDER_NAME,
-            replyTo: NOTIFY_REPLY_TO || undefined,
+            replyTo: notifyReplyTo_(ctx),
             cc: NOTIFY_CC || undefined,
             htmlBody: notifyToHtml_(mail.body)
           });
@@ -371,13 +374,20 @@ function sendTestNotice(req) {
     GmailApp.sendEmail(me, '［範例］' + mail.subject, mail.body, {
       from: notifyFromAddress_(),
       name: NOTIFY_SENDER_NAME,
-      replyTo: NOTIFY_REPLY_TO || undefined,
+      replyTo: notifyReplyTo_(ctx),
       htmlBody: notifyToHtml_(mail.body)
     });
     return { ok: true, to: me };
   });
 }
 
+
+/** 回覆地址：該活動的負責教練（逗號分隔），沒填就用 NOTIFY_REPLY_TO，再沒有就交給寄件者。 */
+function notifyReplyTo_(ctx) {
+  var coaches = ctx.event.coachEmails || [];
+  if (coaches.length) return coaches.join(',');
+  return NOTIFY_REPLY_TO || undefined;
+}
 
 /**
  * 回傳 sendEmail 的 from 值。執行帳號本身就是 NOTIFY_FROM 時回傳 undefined（直接用本帳號寄）；
@@ -492,6 +502,11 @@ function notifyPlanRecipients_(ctx, onlyKeys) {
     recipients.push(rec);
   });
 
+  if (!ctx.event.coachEmails.length) {
+    warnings.push('「' + ctx.event.name + '」的「負責教練Email」沒填，學員按回覆會寄到 ' +
+      (NOTIFY_REPLY_TO || NOTIFY_FROM || '寄件帳號'));
+  }
+
   return { recipients: recipients, skipped: skipped, warnings: warnings };
 }
 
@@ -512,6 +527,8 @@ function notifyReadEvents_() {
       dateText: notifyFmtDate_(r[c['活動日期']]),
       fee: r[c['費用']],
       lineUrl: String(r[c['LINE群組連結']] || '').trim(),
+      coachEmails: c['負責教練Email'] === undefined ? [] :
+        String(r[c['負責教練Email']] || '').split(/[\s,，;；、]+/).filter(notifyIsEmail_),
       cancelReason: c['取消原因'] === undefined ? '' : String(r[c['取消原因']] || '').trim()
     };
   });
