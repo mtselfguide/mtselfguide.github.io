@@ -28,6 +28,13 @@
 /** 收件人看到的寄件人名稱。 */
 var NOTIFY_SENDER_NAME = '台灣自主登山能力推廣協會';
 
+/**
+ * 寄件者信箱（入帳、行前／入群、流團通知都用這個地址寄出）。
+ * 執行帳號必須在 Gmail「設定 → 帳戶 → 以這個地址寄送郵件」加入並驗證這個地址；
+ * 若程式本身就是用這個帳號部署，則不需要別名。留空 = 用執行帳號本身寄。
+ */
+var NOTIFY_FROM = 'services@mtselfguide.com';
+
 /** 收件人按「回覆」時寄到哪裡；留空 = 回覆給寄件帳號本身。 */
 var NOTIFY_REPLY_TO = '';
 
@@ -297,6 +304,7 @@ function sendNotices(req) {
       var sentCol = ctx.payCols[NOTIFY_TYPES[ctx.type].sentCol];
       var operator = notifyOperator_();
       var quota = MailApp.getRemainingDailyQuota();
+      var from = notifyFromAddress_();
 
       var sent = 0, failed = [], stopReason = '';
       for (var i = 0; i < plan.recipients.length; i++) {
@@ -312,6 +320,7 @@ function sendNotices(req) {
         var mail = notifyRenderMail_(ctx, rec);
         try {
           GmailApp.sendEmail(mail.to, mail.subject, mail.body, {
+            from: from,
             name: NOTIFY_SENDER_NAME,
             replyTo: NOTIFY_REPLY_TO || undefined,
             cc: NOTIFY_CC || undefined,
@@ -360,12 +369,29 @@ function sendTestNotice(req) {
     var rec = plan.recipients[0] || notifySampleRow_(ctx);
     var mail = notifyRenderMail_(ctx, rec);
     GmailApp.sendEmail(me, '［範例］' + mail.subject, mail.body, {
+      from: notifyFromAddress_(),
       name: NOTIFY_SENDER_NAME,
       replyTo: NOTIFY_REPLY_TO || undefined,
       htmlBody: notifyToHtml_(mail.body)
     });
     return { ok: true, to: me };
   });
+}
+
+
+/**
+ * 回傳 sendEmail 的 from 值。執行帳號本身就是 NOTIFY_FROM 時回傳 undefined（直接用本帳號寄）；
+ * 不是本帳號也不在已驗證別名裡時，直接報錯，避免信件改用別的地址寄出。
+ */
+function notifyFromAddress_() {
+  var want = String(NOTIFY_FROM || '').trim().toLowerCase();
+  if (!want) return undefined;
+  var self = String(Session.getEffectiveUser().getEmail() || '').toLowerCase();
+  if (self === want) return undefined;
+  var aliases = GmailApp.getAliases().map(function (a) { return String(a).toLowerCase(); });
+  if (aliases.indexOf(want) >= 0) return NOTIFY_FROM.trim();
+  throw notifyErr_('寄件帳號 ' + (self || '（未知）') + ' 還沒把 ' + NOTIFY_FROM +
+    ' 設成「以這個地址寄送郵件」的別名，請先到 Gmail 設定 → 帳戶 加入並驗證，再重新授權後台');
 }
 
 
