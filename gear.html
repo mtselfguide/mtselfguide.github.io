@@ -129,7 +129,7 @@ footer p { margin: 6px 0 0; }
 .seg button:focus-visible { outline: 3px solid var(--rust); outline-offset: -3px; }
 @media (max-width: 420px) { .seg button { font-size: 14px; } }
 
-.photo { background-image: url(assets/gear-top.jpg); }
+.photo { background-image: url(assets/gear-top.jpg); background-position: 50% 60%; }
 .ins.mid { background-image: url(assets/gear-ridge.jpg); }
 .ins.end { background-image: url(assets/gear-sunset.jpg); }
 </style>
@@ -224,7 +224,7 @@ const GEAR = [
 
 /* 天數名稱 */
 const DAYS = { 1: "兩天一夜", 2: "三天兩夜", 3: "四天三夜", 4: "五天四夜" };
-const CN = { 1: "兩", 2: "三", 3: "四", 4: "五" };
+const CN = { 1: "一", 2: "兩", 3: "三", 4: "四" };  // 夜數
 
 /* 從哪個活動進來（?a=…）：顯示活動名稱，並在沒指定 n 時帶入該活動的過夜數 */
 const ACTIVITIES = {
@@ -263,7 +263,7 @@ function render() {
     ${act && act.n === N ? `<p class="ctx">適用活動：${esc(act.name)}</p>` : ""}
     <div class="stats"><div class="stat"><b>${pad(GEAR.length)}</b><span>裝備系統</span></div><div class="stat"><b>${pad(total)}</b><span>檢查項目</span></div><div class="stat"><b>${pad(days)}</b><span>天${CN[N]}夜</span></div></div>
   </div></header>
-  <div class="photo" role="img" aria-label="山頂木桌上用石頭排出字樣，後方是霧中的岩稜"></div>
+  <div class="photo" role="img" aria-label="雲霧中的高山松林與草地，登山者陸續走過倒木旁"></div>
   <div class="wrap">
     <div class="photocap">嘉明湖山區</div>
     <div class="picker"><div class="pl">過夜天數 / DURATION</div>
