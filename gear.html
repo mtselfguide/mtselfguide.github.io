@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#3b4e40">
+<title>登山裝備清單 | 台灣自主登山能力推廣協會</title>
+<meta name="description" content="依活動過夜天數整理的登山裝備檢查表：兩天一夜、三天兩夜、四天三夜、五天四夜，出發前逐項勾選，數量與容量會依天數自動調整。">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://mtselfguide.com/gear.html">
+<meta property="og:title" content="登山裝備清單 | 台灣自主登山能力推廣協會">
+<meta property="og:description" content="依活動過夜天數整理的登山裝備檢查表，出發前逐項勾選。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mtselfguide.com/gear.html">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://mtselfguide.com/assets/og-cover.jpg">
+
+<script>
+  // GA4：與 index.html 使用同一個評估 ID
+  var GA_MEASUREMENT_ID = 'G-L4Y8KVS8ZP';
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  window.gaEnabled = /^G-[A-Z0-9]{6,}$/.test(GA_MEASUREMENT_ID) && GA_MEASUREMENT_ID.indexOf('XXXX') === -1;
+  if (window.gaEnabled) {
+    var gaScript = document.createElement('script');
+    gaScript.async = true;
+    gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_MEASUREMENT_ID;
+    document.head.appendChild(gaScript);
+    gtag('js', new Date());
+    gtag('config', GA_MEASUREMENT_ID);
+  }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Noto+Sans+TC:wght@300;400;500;700;900&amp;display=swap">
+<style>
+:root {
+  --green: #3b4e40; --green-deep: #324236;
+  --bg: #e8e2d6; --surface: #f2efe7; --ink: #1b2a21; --muted: #5d5e52; --line: #cdc5b0;
+  --rust: #b4562d; --rust-soft: #e0975c; --cream: #f3efe6;
+  --sans: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-weight: 400; font-size: 16px; line-height: 1.8; }
+.wrap { max-width: 720px; margin: 0 auto; padding: 0 22px; }
+
+/* 標題區：深綠底＋等高線 */
+.top { background-color: var(--green); color: var(--cream); padding: 56px 0 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='520' viewBox='0 0 520 520' fill='none' stroke='%23ffffff' stroke-opacity='.075' stroke-width='1.4'%3E%3Cpath d='M-20 120C60 70 130 170 230 130S400 50 540 110'/%3E%3Cpath d='M-20 160C65 112 135 208 235 170S405 92 540 150'/%3E%3Cpath d='M-20 200C70 154 140 246 240 210S410 134 540 190'/%3E%3Cpath d='M-20 340C70 290 150 390 260 350S420 280 540 330'/%3E%3Cpath d='M-20 384C74 336 154 432 264 394S424 326 540 374'/%3E%3Cpath d='M-20 428C78 382 158 474 268 438S428 372 540 418'/%3E%3C/svg%3E"); }
+.eyebrow { display: flex; align-items: center; gap: 14px; font-family: var(--mono); font-size: 12.5px; letter-spacing: .2em; color: #cdd3c5; text-transform: uppercase; }
+.eyebrow::before { content: ""; width: 56px; height: 3px; background: var(--rust); flex: none; }
+h1 { font-weight: 900; font-size: clamp(34px, 10vw, 52px); line-height: 1.25; margin: 22px 0 16px; letter-spacing: .02em; color: var(--cream); text-wrap: balance; }
+.lead { margin: 0; color: #dfe3d8; font-size: 15.5px; line-height: 1.9; }
+.stats { display: flex; gap: 34px; margin-top: 28px; padding-top: 22px; border-top: 1px solid rgba(255,255,255,.18); }
+.stat b { display: block; font-family: var(--mono); font-weight: 600; font-size: 38px; line-height: 1.1; color: var(--cream); font-variant-numeric: tabular-nums; }
+.stat:first-child b { color: var(--rust-soft); }
+.stat span { font-size: 13px; color: #cdd3c5; letter-spacing: .12em; }
+
+/* 標題下方照片 */
+.photo { margin: 0; aspect-ratio: 4 / 3; max-height: 460px; width: 100%; background-size: cover; background-position: 50% 45%; background-color: var(--green-deep); border-bottom: 3px solid var(--rust); }
+.photocap { font-family: var(--mono); font-size: 12px; letter-spacing: .16em; color: var(--muted); padding: 8px 0 0; text-align: right; }
+
+.note { margin: 26px 0 0; color: var(--muted); font-size: 14.5px; }
+
+/* 進度列：仿官網導覽列 */
+.prog { position: sticky; top: 0; z-index: 5; margin-top: 22px; background: var(--green); color: var(--cream); box-shadow: 0 4px 10px rgba(27,42,33,.18); }
+.prog .wrap { display: flex; align-items: center; gap: 14px; padding-top: 12px; padding-bottom: 12px; }
+.prog .lbl { font-weight: 700; font-size: 14px; letter-spacing: .08em; }
+.prog #cnt { font-family: var(--mono); font-size: 14px; font-variant-numeric: tabular-nums; min-width: 4.8em; text-align: right; }
+.bar { flex: 1; height: 4px; background: rgba(255,255,255,.2); }
+.bar i { display: block; height: 100%; width: 0; background: var(--rust-soft); transition: width .25s; }
+
+/* 系統區塊 */
+.sec { margin-top: 44px; }
+.sec .hd { display: grid; grid-template-columns: auto 1fr auto; column-gap: 16px; align-items: end; padding-bottom: 12px; border-bottom: 2px solid var(--ink); }
+.sec .no { grid-row: 1 / 3; font-family: var(--mono); font-weight: 600; font-size: 40px; line-height: 1; color: var(--rust); }
+.sec .en { font-family: var(--mono); font-size: 12px; letter-spacing: .22em; color: var(--muted); text-transform: uppercase; line-height: 1.5; }
+.sec h3 { margin: 0; font-weight: 900; font-size: 24px; line-height: 1.3; letter-spacing: .03em; }
+.sec .c { grid-column: 3; grid-row: 1 / 3; font-family: var(--mono); font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; align-self: end; }
+.gear { list-style: none; margin: 0; padding: 0; background: var(--surface); border: 1px solid var(--line); border-top: 0; }
+.gear li + li { border-top: 1px solid var(--line); }
+.gear label { display: flex; gap: 14px; align-items: flex-start; padding: 14px 16px; cursor: pointer; }
+.gear input { appearance: none; -webkit-appearance: none; flex: none; width: 22px; height: 22px; margin: 3px 0 0; border: 2px solid var(--ink); border-radius: 0; background: #fff; display: grid; place-content: center; cursor: pointer; }
+.gear input::after { content: ""; width: 11px; height: 6px; border-left: 3px solid #fff; border-bottom: 3px solid #fff; transform: rotate(-45deg) scale(0); margin-top: -2px; transition: transform .12s; }
+.gear input:checked { background: var(--rust); border-color: var(--rust); }
+.gear input:checked::after { transform: rotate(-45deg) scale(1); }
+.gear input:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+.txt { display: block; min-width: 0; flex: 1; }
+.nm { font-weight: 700; font-size: 16.5px; }
+.adj { display: inline-block; font-family: var(--mono); font-size: 11px; line-height: 1; letter-spacing: .1em; color: #fff; background: var(--rust); padding: 4px 7px; margin-left: 10px; vertical-align: 2px; }
+.meta { display: block; font-family: var(--mono); font-size: 13px; color: var(--green); margin-top: 2px; letter-spacing: .02em; }
+.opt { display: inline-block; border: 1px solid #b3a98f; color: var(--muted); padding: 0 7px; font-size: 12px; line-height: 1.6; }
+.nt { display: block; color: var(--muted); font-size: 14px; line-height: 1.65; margin-top: 3px; }
+.gear input:checked ~ .txt .nm { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--rust); text-decoration-thickness: 2px; }
+
+.reset { font: inherit; font-weight: 500; font-size: 14px; letter-spacing: .08em; color: var(--ink); background: none; border: 2px solid var(--ink); padding: 8px 20px; cursor: pointer; margin-top: 36px; }
+.reset:hover { background: var(--ink); color: var(--cream); }
+.reset:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+
+/* 山區照片 */
+.ins { margin-top: 44px; aspect-ratio: 16 / 10; background-size: cover; background-position: 50% 55%; background-color: var(--green-deep); border-bottom: 3px solid var(--rust); }
+.ins.end { margin-top: 52px; background-position: 50% 62%; }
+
+footer { margin-top: 48px; background: var(--green); color: #cdd3c5; padding: 30px 0 36px; font-size: 13px; }
+footer .org { font-weight: 700; font-size: 16px; color: var(--cream); letter-spacing: .06em; }
+footer .mono { font-family: var(--mono); letter-spacing: .06em; }
+footer a { color: var(--rust-soft); text-underline-offset: 3px; }
+footer p { margin: 6px 0 0; }
+@media (prefers-reduced-motion: reduce) { .bar i, .gear input::after { transition: none; } }
+
+/* 回課程總覽 */
+.back { display: inline-block; margin-bottom: 26px; font-family: var(--mono); font-size: 12.5px; letter-spacing: .14em; color: #cdd3c5; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.3); padding-bottom: 2px; }
+.back:hover { color: var(--cream); border-color: var(--rust-soft); }
+.ctx { margin: 14px 0 0; display: inline-block; font-size: 13.5px; color: var(--cream); border: 1px solid rgba(255,255,255,.3); padding: 3px 12px; }
+
+/* 過夜天數切換 */
+.picker { margin-top: 28px; }
+.picker .pl { font-family: var(--mono); font-size: 12px; letter-spacing: .2em; color: var(--muted); margin-bottom: 8px; }
+.seg { display: grid; grid-template-columns: repeat(4, 1fr); border: 2px solid var(--ink); background: var(--surface); }
+.seg button { font: inherit; font-size: 15px; font-weight: 700; line-height: 1.35; padding: 10px 4px; color: var(--ink); background: none; border: 0; border-left: 1px solid var(--line); cursor: pointer; }
+.seg button:first-child { border-left: 0; }
+.seg button small { display: block; font-family: var(--mono); font-weight: 400; font-size: 11.5px; letter-spacing: .08em; color: var(--muted); }
+.seg button:hover { background: #e6e0cf; }
+.seg button[aria-pressed="true"] { background: var(--green); color: var(--cream); }
+.seg button[aria-pressed="true"] small { color: #cdd3c5; }
+.seg button:focus-visible { outline: 3px solid var(--rust); outline-offset: -3px; }
+@media (max-width: 420px) { .seg button { font-size: 14px; } }
+
+.photo { background-image: url(assets/gear-top.jpg); }
+.ins.mid { background-image: url(assets/gear-ridge.jpg); }
+.ins.end { background-image: url(assets/gear-sunset.jpg); }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ───────────────────────────────────────────────────────────────
+   裝備資料：依「過夜數 n」產生對應的建議。
+   每個項目：{ nm: 名稱, q(n): 數量/規格, p(n): 依個人選擇, t(n): 補充建議 }
+   與「兩天一夜（n=1）」版本不同的項目，會自動標上「依天數調整」。
+   新增或調整裝備：只改下面這張表即可，不需要動其他程式。
+──────────────────────────────────────────────────────────────── */
+const G = (nm, q, p, t) => ({ nm, q: typeof q === "function" ? q : () => q, p: typeof p === "function" ? p : () => p || "", t: typeof t === "function" ? t : () => t || "" });
+const dRange = (a, b) => a === b ? `D${a}` : `D${a}–D${b}`;
+const HEADLAMP = "記得測試可用並充飽電，使用電池者可多攜帶一組備用";
+const COLD = "行進間配戴可防風，冬季易有風寒效應";
+
+const GEAR = [
+  ["健行系統", "Hiking", [
+    G("登山背包", "1 個",
+      n => n <= 1 ? "40–60L" : n === 2 ? "45–65L" : n === 3 ? "50–70L" : "60–80L",
+      n => n <= 1 ? "兩天一夜裝備與糧食較少，40–60L 即可" : "裝備與糧食隨天數增加，容量比兩天一夜（40–60L）加大"),
+    G("背包防水套", "選配"),
+    G("防水塑膠袋", "1 個以上", "", "背包打包使用，可分類包裝衣物與睡袋"),
+    G("雨衣", "1 件"),
+    G("雨褲", "1 件"),
+    G("排汗衣（行走穿）", n => n <= 1 ? "1 件" : n <= 3 ? "2 件" : "3 件", "長袖／短袖",
+      n => n <= 1 ? "" : n <= 3 ? "穿 1 備 1" : "穿 1 備 2"),
+    G("快乾褲（行走穿）", "1 件"),
+    G("登山杖", "選配", "1 支／2 支", "如使用「非自立帳篷」需帶 2 支"),
+    G("登山鞋", "1 雙", "", "檢查是否太久沒穿，避免脫膠"),
+    G("健行用襪", n => n <= 1 ? "2 雙" : n <= 3 ? "3 雙" : "4 雙", "",
+      n => n <= 1 ? "穿 1 備 1" : n <= 3 ? "穿 1 備 2" : "穿 1 備 3"),
+    G("防曬油", "選配"),
+    G("太陽眼鏡", "選配"),
+    G("遮陽帽", "選配", "", COLD),
+    G("頭巾", "選配", "", COLD),
+    G("頭燈", "1 個", "", HEADLAMP)
+  ]],
+  ["飲水系統", "Water", [
+    G("水壺 1L", "1 個", "最少 1 升", "可加入熱水"),
+    G("保溫瓶 >0.5L", "選配", "", "冬天建議帶著"),
+    G("水袋", "選配", "", "水袋與過濾器搭配"),
+    G("過濾器", "選配", "", "建議攜帶／若無可共用或另外購買 CapGo HEM")
+  ]],
+  ["保暖系統", "Warmth", [
+    G("保暖外套", "1 件", "羽絨衣／化纖保暖衣", "二擇一"),
+    G("保暖中層上衣（休息穿）", "選配", "", "行進休息可搭配"),
+    G("保暖帽", "1 個", "頭部保暖", "夜間頭部保暖"),
+    G("保暖手套", "選配", "視個人所需"),
+    G("長袖排汗衣褲（備用衣褲）", "1 個", "睡覺穿著", "可當夜間保暖衣物或行走的中層")
+  ]],
+  ["睡眠系統", "Sleep", [
+    G("登山帳篷", "1 個", "個人帳", "營釘營繩"),
+    G("地布", "選配"),
+    G("睡墊", "1 個", "", "蛋殼／充氣（刺破）"),
+    G("睡袋", "1 個", "舒適溫度 −2～5°C", "不要太大會不暖"),
+    G("耳塞", "1 對", "", "建議攜帶"),
+    G("拖鞋／涼鞋", "選配")
+  ]],
+  ["糧食系統", "Food", [
+    G("早餐", n => `${n} 份`, n => dRange(2, n + 1)),
+    G("晚餐", n => `${n} 份`, n => dRange(1, n)),
+    G("宵夜", "選配"),
+    G("行動糧（含午餐）", "適量", n => dRange(1, n + 1)),
+    G("備糧", n => n <= 1 ? "選配" : "1 份", "",
+      n => n <= 1 ? "行程較短，可視情況多帶一份備用" : n === 2 ? "以防行程延誤" : "天數較長，建議多備一餐，以防行程延誤")
+  ]],
+  ["炊煮系統", "Cooking", [
+    G("高山爐頭", "1 個"),
+    G("高山瓦斯", n => n <= 3 ? "1 罐" : "2 罐", "230g 標準／中款",
+      n => n <= 3 ? "正常煮水可用 4 天" : "5 天以上建議多帶 1 罐，或與同伴共用"),
+    G("鍋具", "1 組", "鍋具、水杯"),
+    G("餐具", "1 組", "筷子、湯匙"),
+    G("打火機", "1 個", "", "檢查可以使用")
+  ]],
+  ["電子裝備", "Electronics", [
+    G("手機", "1 支"),
+    G("行動電源", n => n <= 3 ? "10000mAh" : "20000mAh", "",
+      n => n <= 2 ? "" : n === 3 ? "視用電量，可視需要加大" : "天數較長，建議加大容量或與同伴分攤"),
+    G("頭燈電池或充電線", "視個人所需", "", HEADLAMP)
+  ]],
+  ["其他裝備", "Others", [
+    G("個人藥物", "視個人所需", "", "怕蚊蟲叮咬的人可以依所需帶防蚊蟲藥物"),
+    G("筆記本、筆", "視個人所需"),
+    G("地圖（離線地圖）", "視個人所需"),
+    G("個人衛生用品", "視個人所需", "", "衛生紙／衛生棉／濕紙巾／貓鏟"),
+    G("攻頂包", "視個人所需", "", "可用登山包替代")
+  ]]
+];
+
+/* 天數名稱 */
+const DAYS = { 1: "兩天一夜", 2: "三天兩夜", 3: "四天三夜", 4: "五天四夜" };
+const CN = { 1: "兩", 2: "三", 3: "四", 4: "五" };
+
+/* 從哪個活動進來（?a=…）：顯示活動名稱，並在沒指定 n 時帶入該活動的過夜數 */
+const ACTIVITIES = {
+  walami:     { name: "兩天一夜野營實戰 — 瓦拉米步道篇", n: 1 },
+  camp:       { name: "野營不慌張系列 — 週六過夜體驗", n: 1 },
+  jiaming:    { name: "戒茂斯－嘉明湖四天三夜自主登山實踐", n: 3 }
+};
+
+const params = new URLSearchParams(location.search);
+const act = ACTIVITIES[params.get("a")] || null;
+const clampN = v => Math.min(4, Math.max(1, parseInt(v, 10) || 0));
+let N = clampN(params.get("n")) || (act ? act.n : 1);
+
+const pad = x => String(x).padStart(2, "0");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const sig = (it, n) => [it.q(n), it.p(n), it.t(n)].join("|");
+const keyOf = n => `mtsg-gear-n${n}`;
+
+function load(n) { try { return JSON.parse(localStorage.getItem(keyOf(n)) || "{}"); } catch (e) { return {}; } }
+function store(n, v) { try { localStorage.setItem(keyOf(n), JSON.stringify(v)); } catch (e) {} }
+
+let saved = {}, boxes = [];
+
+function render() {
+  saved = load(N);
+  const days = N + 1;
+  const total = GEAR.reduce((s, g) => s + g[2].length, 0);
+  const adjCount = GEAR.reduce((s, g) => s + g[2].filter(it => sig(it, N) !== sig(it, 1)).length, 0);
+  document.title = `${DAYS[N]}登山裝備清單 | 台灣自主登山能力推廣協會`;
+
+  let html = `<header class="top"><div class="wrap">
+    <a class="back" href="./">← 課程總覽</a>
+    <div class="eyebrow">Gear Checklist</div>
+    <h1>${DAYS[N]}<br>登山裝備清單</h1>
+    <p class="lead">依活動過夜天數整理，出發前逐項勾選確認。切換下方天數，數量與容量會一併調整。</p>
+    ${act && act.n === N ? `<p class="ctx">適用活動：${esc(act.name)}</p>` : ""}
+    <div class="stats"><div class="stat"><b>${pad(GEAR.length)}</b><span>裝備系統</span></div><div class="stat"><b>${pad(total)}</b><span>檢查項目</span></div><div class="stat"><b>${pad(days)}</b><span>天${CN[N]}夜</span></div></div>
+  </div></header>
+  <div class="photo" role="img" aria-label="山頂木桌上用石頭排出字樣，後方是霧中的岩稜"></div>
+  <div class="wrap">
+    <div class="photocap">嘉明湖山區</div>
+    <div class="picker"><div class="pl">過夜天數 / DURATION</div>
+      <div class="seg" role="group" aria-label="選擇過夜天數">${[1, 2, 3, 4].map(n => `<button type="button" data-n="${n}" aria-pressed="${n === N}">${DAYS[n]}<small>${n} NIGHT${n > 1 ? "S" : ""}</small></button>`).join("")}</div>
+    </div>
+    <p class="note">依路線、季節與個人所需調整；標「選配」的項目由你自行決定。${adjCount ? `帶有 <span class="adj" style="margin-left:2px">${DAYS[N]}調整</span> 標記的項目（共 ${adjCount} 項），已比兩天一夜增加數量或容量。` : "這是最基本的過夜版本，天數增加時數量與容量會再調整。"}</p>
+  </div>
+  <div class="prog"><div class="wrap"><span class="lbl">已準備</span><div class="bar"><i id="bar"></i></div><span id="cnt">0 / ${total}</span></div></div>
+  <div class="wrap">`;
+
+  GEAR.forEach((g, gi) => {
+    html += `<section class="sec"><div class="hd"><span class="no">${pad(gi + 1)}</span><span class="en">${g[1]}</span><span class="c" id="c${gi}"></span><h3>${g[0]}</h3></div><ul class="gear">` +
+      g[2].map((it, ii) => {
+        const id = `g${gi}-${ii}`;
+        const qty = it.q(N), pick = it.p(N), note = it.t(N);
+        const adj = N > 1 && sig(it, N) !== sig(it, 1);
+        const q = qty === "選配" ? `<span class="opt">選配</span>` : esc(qty);
+        const meta = [q, esc(pick)].filter(Boolean).join(" ｜ ");
+        return `<li><label for="${id}"><input type="checkbox" id="${id}" data-g="${gi}"${saved[id] ? " checked" : ""}><span class="txt"><span class="nm">${esc(it.nm)}</span>${adj ? `<span class="adj">${DAYS[N]}調整</span>` : ""}<span class="meta">${meta}</span>${note ? `<span class="nt">${esc(note)}</span>` : ""}</span></label></li>`;
+      }).join("") + `</ul></section>`;
+    if (gi === 3) html += `<div class="ins mid" role="img" aria-label="嘉明湖山區草原稜線上的登山步道，遠方是層層山巒與藍天"></div><div class="photocap">嘉明湖山區　·　草原稜線</div>`;
+  });
+
+  html += `<div style="text-align:center"><button class="reset" id="rs" type="button">全部取消勾選</button></div>
+    <div class="ins end" role="img" aria-label="嘉明湖山區的雲海與日落"></div><div class="photocap">嘉明湖山區　·　雲海日落</div>
+  </div>
+  <footer><div class="wrap"><div class="org">台灣自主登山能力推廣協會</div><p>安全走入山林，從自主能力開始</p><p class="mono">services@mtselfguide.com　·　<a href="./">mtselfguide.com</a></p><p>勾選只保存在你自己的瀏覽器（每種天數各自記錄），換裝置或清除資料後需要重新勾選。</p></div></footer>`;
+
+  document.getElementById("app").innerHTML = html;
+  boxes = [...document.querySelectorAll(".gear input")];
+  boxes.forEach(b => b.addEventListener("change", () => {
+    saved[b.id] = b.checked;
+    store(N, saved);
+    update();
+  }));
+  document.getElementById("rs").addEventListener("click", () => {
+    boxes.forEach(b => { b.checked = false; });
+    saved = {};
+    store(N, saved);
+    update();
+  });
+  document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => {
+    const n = clampN(b.dataset.n);
+    if (n === N) return;
+    N = n;
+    const u = new URL(location.href);
+    u.searchParams.set("n", N);
+    try { history.replaceState(null, "", u); } catch (e) {}
+    const y = scrollY;
+    render();
+    scrollTo(0, y);
+    if (window.gaEnabled) { try { gtag("event", "gear_nights_select", { link_name: `nights_${N}` }); } catch (e) {} }
+  }));
+  update();
+}
+
+function update() {
+  const n = boxes.filter(b => b.checked).length;
+  document.getElementById("cnt").textContent = `${n} / ${boxes.length}`;
+  document.getElementById("bar").style.width = (boxes.length ? n / boxes.length * 100 : 0) + "%";
+  GEAR.forEach((g, gi) => {
+    const own = boxes.filter(b => b.dataset.g == gi);
+    document.getElementById("c" + gi).textContent = `${own.filter(b => b.checked).length} / ${own.length}`;
+  });
+}
+
+render();
+</script>
+</body>
+</html>

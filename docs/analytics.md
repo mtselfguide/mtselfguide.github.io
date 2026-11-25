@@ -52,6 +52,8 @@ GA4 預設只統計事件「總次數」，不會自動拆分事件參數。
 | `signup_click` | 點擊任一個「報名／立即報名」按鈕 | `course_id`、`course_name`、`click_location`、`link_url` |
 | `contact_click` | 點擊頁首或頁尾的 Email 聯絡信箱 | `link_name`、`link_url` |
 | `outbound_click` | 點擊頁尾 Facebook 粉專連結 | `link_name`、`link_url` |
+| `gear_click` | 點擊活動卡上的「查看裝備清單」入口 | `link_name`（`gear_walami`／`gear_camp`／`gear_jiaming`）、`link_url` |
+| `gear_nights_select` | 在裝備清單頁切換過夜天數（`gear.html` 自帶追蹤，不在首頁） | `link_name`（`nights_1`～`nights_4`） |
 | `scroll_depth` | 捲動到 25% / 50% / 75% / 100%（每個里程碑一次） | `percent_scrolled` |
 | `time_on_page` | 停留滿 15 / 30 / 60 / 180 / 300 秒 | `engaged_seconds` |
 | `wish_add` | 在課程許願牆新增一門課 | `wish_name` |

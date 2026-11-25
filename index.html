@@ -515,6 +515,23 @@
       transition: background .15s;
     }
     .btn:hover { background: var(--signal-dark); color: var(--on-signal); }
+    .btn-sub {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 10px;
+      padding: 13px 20px;
+      border: 1.5px solid var(--ink);
+      color: var(--ink);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      transition: background .15s, color .15s;
+    }
+    .btn-sub small { font-weight: 500; font-size: 12.5px; letter-spacing: .06em; color: var(--dim); margin-left: 8px; }
+    .btn-sub:hover { background: var(--ink); color: var(--on-band); }
+    .btn-sub:hover small { color: var(--on-band); }
     .btn-off {
       margin-top: 24px;
       padding: 16px 20px;
@@ -1061,6 +1078,11 @@
             <span>立即報名</span>
             <svg width="20" height="12" viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M0 6h18M13 1l5 5-5 5" /></svg>
           </a>
+          <a class="btn-sub" href="gear.html?n=1&amp;a=camp"
+             data-ga-event="gear_click" data-ga-link-name="gear_camp">
+            <span>🎒 查看裝備清單<small>兩天一夜・週六過夜班</small></span>
+            <svg width="20" height="12" viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M0 6h18M13 1l5 5-5 5" /></svg>
+          </a>
         </div>
       </article>
 
@@ -1089,6 +1111,11 @@
              data-ga-course-name="兩天一夜野營實戰 — 瓦拉米步道篇"
              data-ga-location="card">
             <span>立即報名</span>
+            <svg width="20" height="12" viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M0 6h18M13 1l5 5-5 5" /></svg>
+          </a>
+          <a class="btn-sub" href="gear.html?n=1&amp;a=walami"
+             data-ga-event="gear_click" data-ga-link-name="gear_walami">
+            <span>🎒 查看裝備清單<small>兩天一夜</small></span>
             <svg width="20" height="12" viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M0 6h18M13 1l5 5-5 5" /></svg>
           </a>
         </div>
@@ -1251,6 +1278,11 @@
            data-ga-course-name="戒茂斯－嘉明湖四天三夜自主登山實踐"
            data-ga-location="card">
           <span>立即報名</span>
+          <svg width="20" height="12" viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M0 6h18M13 1l5 5-5 5" /></svg>
+        </a>
+        <a class="btn-sub" href="gear.html?n=3&amp;a=jiaming"
+           data-ga-event="gear_click" data-ga-link-name="gear_jiaming">
+          <span>🎒 查看裝備清單<small>四天三夜</small></span>
           <svg width="20" height="12" viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M0 6h18M13 1l5 5-5 5" /></svg>
         </a>
       </div>
