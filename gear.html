@@ -129,6 +129,15 @@ footer p { margin: 6px 0 0; }
 .seg button:focus-visible { outline: 3px solid var(--rust); outline-offset: -3px; }
 @media (max-width: 420px) { .seg button { font-size: 14px; } }
 
+
+/* 電腦版：補充說明放右側；手機維持在下方 */
+.main { display: block; min-width: 0; }
+@media (min-width: 760px) {
+  .wrap { max-width: 960px; }
+  .txt { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); column-gap: 32px; align-items: start; }
+  .txt .nt { margin-top: 2px; padding-left: 20px; border-left: 2px solid var(--line); align-self: stretch; }
+}
+
 .photo { background-image: url(assets/gear-top.jpg); background-position: 50% 60%; }
 .ins.mid { background-image: url(assets/gear-ridge.jpg); }
 .ins.end { background-image: url(assets/gear-sunset.jpg); }
@@ -282,7 +291,7 @@ function render() {
         const adj = N > 1 && sig(it, N) !== sig(it, 1);
         const q = qty === "選配" ? `<span class="opt">選配</span>` : esc(qty);
         const meta = [q, esc(pick)].filter(Boolean).join(" ｜ ");
-        return `<li><label for="${id}"><input type="checkbox" id="${id}" data-g="${gi}"${saved[id] ? " checked" : ""}><span class="txt"><span class="nm">${esc(it.nm)}</span>${adj ? `<span class="adj">${DAYS[N]}調整</span>` : ""}<span class="meta">${meta}</span>${note ? `<span class="nt">${esc(note)}</span>` : ""}</span></label></li>`;
+        return `<li><label for="${id}"><input type="checkbox" id="${id}" data-g="${gi}"${saved[id] ? " checked" : ""}><span class="txt"><span class="main"><span class="nm">${esc(it.nm)}</span>${adj ? `<span class="adj">${DAYS[N]}調整</span>` : ""}<span class="meta">${meta}</span></span>${note ? `<span class="nt">${esc(note)}</span>` : ""}</span></label></li>`;
       }).join("") + `</ul></section>`;
     if (gi === 3) html += `<div class="ins mid" role="img" aria-label="嘉明湖山區草原稜線上的登山步道，遠方是層層山巒與藍天"></div><div class="photocap">嘉明湖山區　·　草原稜線</div>`;
   });
